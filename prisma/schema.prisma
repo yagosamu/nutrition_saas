@@ -1,0 +1,331 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  PATIENT
+}
+enum Sex {
+  MALE
+  FEMALE
+}
+enum IngredientSource {
+  TACO
+  TBCA
+  CUSTOM
+}
+enum MealType {
+  BREAKFAST
+  MORNING_SNACK
+  LUNCH
+  AFTERNOON_SNACK
+  DINNER
+  SUPPER
+}
+enum RecipeStatus {
+  APPROVED
+  PENDING_REVIEW
+  PRIVATE
+}
+enum RecipeOrigin {
+  TEAM
+  AI_GENERATED
+  EXTERNAL
+}
+enum MealLogStatus {
+  COMPLETED
+  SKIPPED
+}
+enum MealLogType {
+  PLAN
+  AI_SUGGESTION
+  EXTERNAL_RECIPE
+  FREE_ENTRY
+}
+enum AiJobType {
+  SUGGEST
+  GENERATE
+  EVALUATE_EXTERNAL
+}
+enum AiJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+}
+enum AssessmentSource {
+  TEAM
+  PATIENT
+}
+enum MaterialType {
+  PDF
+  IMAGE
+  LINK
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  name               String
+  passwordHash       String
+  role               Role
+  active             Boolean  @default(true)
+  mustChangePassword Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  patientProfile      PatientProfile?
+  mealPlans           MealPlan[]
+  mealLogs            MealLog[]
+  mealSuggestions     MealSuggestion[]
+  aiJobs              AiJob[]
+  assessments         Assessment[]         @relation("PatientAssessments")
+  recordedAssessments Assessment[]         @relation("RecordedAssessments")
+  progressPhotos      ProgressPhoto[]
+  diaryNotes          DiaryNote[]
+  uploadedMaterials   Material[]
+  materialAssignments MaterialAssignment[]
+  privateRecipes      Recipe[]
+}
+
+model PatientProfile {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  birthDate    DateTime?
+  sex          Sex?
+  teamNotes    String?
+  dailyAiLimit Int       @default(10)
+}
+
+model Ingredient {
+  id                String           @id @default(cuid())
+  name              String
+  source            IngredientSource
+  sourceKey         String?
+  kcalPer100g       Float
+  proteinGPer100g   Float
+  carbsGPer100g     Float
+  fatGPer100g       Float
+  fiberGPer100g     Float?
+  householdMeasures Json?
+  createdAt         DateTime         @default(now())
+  recipeIngredients RecipeIngredient[]
+  mealSlotItems     MealSlotItem[]
+  @@unique([source, sourceKey])
+  @@index([name])
+}
+
+model Recipe {
+  id                 String       @id @default(cuid())
+  name               String
+  instructions       String
+  servings           Float        @default(1)
+  suitableMealTypes  MealType[]
+  status             RecipeStatus @default(PRIVATE)
+  origin             RecipeOrigin
+  patientId          String?
+  patient            User?        @relation(fields: [patientId], references: [id], onDelete: SetNull)
+  // Totais POR PORÇÃO, denormalizados. Sempre recalculados pelo sistema
+  // (soma dos ingredientes) a cada edição — nunca preenchidos por LLM.
+  kcalPerServing     Float        @default(0)
+  proteinGPerServing Float        @default(0)
+  carbsGPerServing   Float        @default(0)
+  fatGPerServing     Float        @default(0)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  ingredients     RecipeIngredient[]
+  mealSlotItems   MealSlotItem[]
+  mealLogs        MealLog[]
+  mealSuggestions MealSuggestion[]
+  @@index([status])
+}
+
+model RecipeIngredient {
+  recipeId     String
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  quantityG    Float
+  @@id([recipeId, ingredientId])
+}
+
+model MealPlan {
+  id            String   @id @default(cuid())
+  patientId     String
+  patient       User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  active        Boolean  @default(true)
+  dailyKcal     Float
+  dailyProteinG Float
+  dailyCarbsG   Float
+  dailyFatG     Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  slots MealSlot[]
+  @@index([patientId, active])
+}
+
+model MealSlot {
+  id         String   @id @default(cuid())
+  mealPlanId String
+  mealPlan   MealPlan @relation(fields: [mealPlanId], references: [id], onDelete: Cascade)
+  name       String
+  order      Int
+  timeHint   String?
+  mealType   MealType
+  kcal       Float
+  proteinG   Float
+  carbsG     Float
+  fatG       Float
+  items           MealSlotItem[]
+  mealLogs        MealLog[]
+  mealSuggestions MealSuggestion[]
+}
+
+model MealSlotItem {
+  id           String      @id @default(cuid())
+  mealSlotId   String
+  mealSlot     MealSlot    @relation(fields: [mealSlotId], references: [id], onDelete: Cascade)
+  // Exatamente um dos dois: ingrediente (com quantityG) OU receita (com servings)
+  ingredientId String?
+  ingredient   Ingredient? @relation(fields: [ingredientId], references: [id])
+  recipeId     String?
+  recipe       Recipe?     @relation(fields: [recipeId], references: [id])
+  quantityG    Float?
+  servings     Float?
+}
+
+model MealLog {
+  id              String        @id @default(cuid())
+  patientId       String
+  patient         User          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date            DateTime      @db.Date
+  mealSlotId      String
+  mealSlot        MealSlot      @relation(fields: [mealSlotId], references: [id])
+  status          MealLogStatus
+  type            MealLogType?
+  recipeId        String?
+  recipe          Recipe?       @relation(fields: [recipeId], references: [id])
+  portionFactor   Float?
+  freeDescription String?
+  // Snapshot do consumido, congelado no registro — histórico imutável.
+  kcal            Float         @default(0)
+  proteinG        Float         @default(0)
+  carbsG          Float         @default(0)
+  fatG            Float         @default(0)
+  notes           String?
+  loggedAt        DateTime      @default(now())
+  photos MealLogPhoto[]
+  @@unique([patientId, date, mealSlotId])
+}
+
+model MealLogPhoto {
+  id        String  @id @default(cuid())
+  mealLogId String
+  mealLog   MealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+  r2Key     String
+}
+
+model AiJob {
+  id           String      @id @default(cuid())
+  type         AiJobType
+  status       AiJobStatus @default(PENDING)
+  patientId    String
+  patient      User        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  input        Json
+  result       Json?
+  error        String?
+  inputTokens  Int?
+  outputTokens Int?
+  costUsd      Decimal?    @db.Decimal(10, 6)
+  createdAt    DateTime    @default(now())
+  completedAt  DateTime?
+  mealSuggestions MealSuggestion[]
+  @@index([patientId, createdAt])
+}
+
+model MealSuggestion {
+  id            String   @id @default(cuid())
+  patientId     String
+  patient       User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  mealSlotId    String
+  mealSlot      MealSlot @relation(fields: [mealSlotId], references: [id], onDelete: Cascade)
+  date          DateTime @db.Date
+  recipeId      String
+  recipe        Recipe   @relation(fields: [recipeId], references: [id])
+  portionFactor Float
+  kcal          Float
+  proteinG      Float
+  carbsG        Float
+  fatG          Float
+  aiJobId       String?
+  aiJob         AiJob?   @relation(fields: [aiJobId], references: [id])
+  createdAt     DateTime @default(now())
+  @@index([patientId, date])
+}
+
+model Assessment {
+  id           String           @id @default(cuid())
+  patientId    String
+  patient      User             @relation("PatientAssessments", fields: [patientId], references: [id], onDelete: Cascade)
+  date         DateTime         @db.Date
+  source       AssessmentSource
+  recordedById String?
+  recordedBy   User?            @relation("RecordedAssessments", fields: [recordedById], references: [id])
+  weightKg     Float?
+  heightCm     Float?
+  waistCm      Float?
+  hipCm        Float?
+  chestCm      Float?
+  armCm        Float?
+  thighCm      Float?
+  bodyFatPct   Float?
+  muscleMassKg Float?
+  notes        String?
+  @@index([patientId, date])
+}
+
+model ProgressPhoto {
+  id        String           @id @default(cuid())
+  patientId String
+  patient   User             @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  r2Key     String
+  source    AssessmentSource @default(PATIENT)
+  takenAt   DateTime         @default(now())
+}
+
+model DiaryNote {
+  id        String   @id @default(cuid())
+  patientId String
+  patient   User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  date      DateTime @db.Date
+  text      String
+  @@unique([patientId, date])
+}
+
+model Material {
+  id           String       @id @default(cuid())
+  title        String
+  type         MaterialType
+  r2Key        String?
+  url          String?
+  isGlobal     Boolean      @default(false)
+  uploadedById String
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime     @default(now())
+  assignments MaterialAssignment[]
+}
+
+model MaterialAssignment {
+  id         String   @id @default(cuid())
+  materialId String
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  patientId  String
+  patient    User     @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  @@unique([materialId, patientId])
+}
