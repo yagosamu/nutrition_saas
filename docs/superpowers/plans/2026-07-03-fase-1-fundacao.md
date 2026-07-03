@@ -209,26 +209,43 @@ Schema completo do design doc (seção 4). Modela TODAS as entidades do MVP desd
 
 **Pré-requisito:** `.env` na raiz com `DATABASE_URL` válida (copiar de `.env.example` e preencher — NÃO commitar).
 
-- [ ] **Step 1: Instalar Prisma**
+> **Prisma 7:** o projeto usa Prisma 7 (não 6). Diferenças relevantes: o generator é `prisma-client` (gera o client em `src/generated/prisma`, fora do node_modules), a URL do banco vive em `prisma.config.ts` (não no schema), e o client roda com driver adapter (`@prisma/adapter-pg`). O CLI não lê `.env` sozinho — o `prisma.config.ts` importa `dotenv/config`.
+
+- [ ] **Step 1: Instalar Prisma 7 + adapter PostgreSQL**
 
 ```powershell
-npm install -D prisma
-npm install @prisma/client
-npx prisma init --datasource-provider postgresql
+npm install -D prisma @types/pg
+npm install @prisma/client @prisma/adapter-pg pg dotenv
 ```
 
-(O `prisma init` cria `prisma/schema.prisma` básico e um `.env` se não existir.)
+- [ ] **Step 2: Criar `prisma.config.ts` na raiz**
 
-- [ ] **Step 2: Substituir `prisma/schema.prisma` pelo schema completo**
+```ts
+import "dotenv/config";
+import { defineConfig, env } from "prisma/config";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+    seed: "tsx --env-file=.env prisma/seed.ts",
+  },
+  datasource: {
+    url: env("DATABASE_URL"),
+  },
+});
+```
+
+- [ ] **Step 3: Criar `prisma/schema.prisma` com o schema completo**
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -584,21 +601,32 @@ model MaterialAssignment {
 }
 ```
 
-- [ ] **Step 3: Validar o schema**
+- [ ] **Step 4: Ignorar o client gerado e gerar no install**
+
+Adicionar ao `.gitignore`:
+
+```
+# prisma client gerado
+/src/generated/prisma
+```
+
+Adicionar em `"scripts"` do `package.json`: `"postinstall": "prisma generate"`.
+
+- [ ] **Step 5: Validar o schema**
 
 Run: `npx prisma validate`
 Expected: "The schema at prisma/schema.prisma is valid"
 
-- [ ] **Step 4: Rodar a migração inicial**
+- [ ] **Step 6: Rodar a migração inicial**
 
 Run: `npx prisma migrate dev --name init`
-Expected: migração criada em `prisma/migrations/` e aplicada; client gerado.
+Expected: migração criada em `prisma/migrations/` e aplicada; client gerado em `src/generated/prisma`.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
-git add prisma package.json package-lock.json
-git commit -m "feat: schema Prisma completo do MVP + migracao inicial"
+git add prisma prisma.config.ts .gitignore package.json package-lock.json
+git commit -m "feat: schema Prisma completo do MVP + migracao inicial (Prisma 7)"
 ```
 
 **Critérios de aceite (Codex):** `npx prisma validate` passa; `npx prisma migrate dev` aplica sem erro; todas as entidades e enums do design doc (seção 4) existem no schema; nenhum campo de macro em Recipe é preenchível sem cálculo (defaults 0).
@@ -619,25 +647,31 @@ npm install bcryptjs
 npm install -D @types/bcryptjs
 ```
 
-- [ ] **Step 2: Criar `src/server/db.ts`** (singleton para não esgotar conexões no dev)
+- [ ] **Step 2: Criar `src/server/db.ts`** (singleton para não esgotar conexões no dev; Prisma 7 = client gerado + driver adapter)
 
 ```ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
+function createClient() {
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  return new PrismaClient({ adapter });
+}
+
+export const prisma = globalForPrisma.prisma ?? createClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 ```
 
-- [ ] **Step 3: Criar `prisma/seed.ts`**
+(Import relativo — não usar o alias `@/` aqui, para o arquivo funcionar igual no Next, no Vitest e nos scripts tsx.)
+
+- [ ] **Step 3: Criar `prisma/seed.ts`** (o env vem do `tsx --env-file=.env` configurado no `prisma.config.ts`)
 
 ```ts
-import { PrismaClient } from "@prisma/client";
 import { hash } from "bcryptjs";
-
-const prisma = new PrismaClient();
+import { prisma } from "../src/server/db";
 
 async function main() {
   const email = process.env.ADMIN_EMAIL;
@@ -673,13 +707,9 @@ main()
   .finally(() => prisma.$disconnect());
 ```
 
-- [ ] **Step 4: Configurar o seed no `package.json`** (chave no nível raiz do JSON)
+- [ ] **Step 4: Conferir o seed no `prisma.config.ts`**
 
-```json
-"prisma": {
-  "seed": "tsx --env-file=.env prisma/seed.ts"
-}
-```
+O comando de seed já foi configurado na Task 3 (`migrations.seed` no `prisma.config.ts`) — no Prisma 7 ele NÃO vai no `package.json`. Só conferir que está lá.
 
 - [ ] **Step 5: Rodar o seed e verificar**
 
@@ -859,10 +889,8 @@ Buscar na web/GitHub por dataset JSON da TACO (Tabela Brasileira de Composição
 
 ```ts
 import { readFileSync } from "node:fs";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../src/server/db";
 import { normalizeTacoFood, type RawTacoFood } from "../src/server/services/taco";
-
-const prisma = new PrismaClient();
 
 async function main() {
   const path = process.argv[2] ?? "prisma/data/taco.json";

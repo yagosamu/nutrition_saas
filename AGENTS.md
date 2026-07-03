@@ -39,4 +39,5 @@ App web para consultoria de nutrição (< 50 pacientes): equipe define planos al
 - **Nunca** commitar `.env` ou segredos; nunca logar senhas/hashes.
 - Antes de encerrar qualquer tarefa: `npm run test` e `npm run build` devem passar.
 - Zod v4 (sintaxe `z.email()`, não `z.string().email()`). Tailwind v4. Auth.js v5 (`next-auth@beta`).
+- **Prisma 7** (não 6): generator `prisma-client` com output em `src/generated/prisma` (gitignorado), URL do banco em `prisma.config.ts` (não no schema), client via driver adapter `@prisma/adapter-pg`. Importe o client sempre de `src/server/db.ts` — nunca instancie `PrismaClient` direto fora dele.
 - Windows/PowerShell no ambiente local — os comandos dos planos já estão nesse formato.
