@@ -959,7 +959,7 @@ git commit -m "feat: importacao da tabela TACO para o banco de ingredientes"
 
 ---
 
-### Task 7: Auth.js v5 — serviço de login (TDD), config e middleware — [CODEX]
+### Task 7: Auth.js v5 — serviço de login (TDD), config e proxy — [CODEX]
 
 **Files:**
 - Create: `src/server/services/login.ts`
@@ -967,7 +967,7 @@ git commit -m "feat: importacao da tabela TACO para o banco de ingredientes"
 - Create: `src/server/auth/config.ts` (edge-safe: sem Prisma/bcrypt)
 - Create: `src/server/auth/index.ts`
 - Create: `src/app/api/auth/[...nextauth]/route.ts`
-- Create: `src/middleware.ts`
+- Create: `src/proxy.ts` (Next 16: convenção `middleware` foi renomeada para `proxy`)
 
 - [ ] **Step 1: Instalar Auth.js v5**
 
@@ -1096,7 +1096,7 @@ export function validateLogin(email: string, password: string): Promise<AuthUser
 Run: `npx vitest run src/server/services/login.test.ts`
 Expected: 5 passed.
 
-- [ ] **Step 6: Criar `src/server/auth/config.ts`** (edge-safe — importado pelo middleware; NÃO importar Prisma/bcrypt aqui)
+- [ ] **Step 6: Criar `src/server/auth/config.ts`** (importado pelo proxy, que roda a cada request — NÃO importar Prisma/bcrypt aqui)
 
 ```ts
 import type { NextAuthConfig } from "next-auth";
@@ -1166,7 +1166,7 @@ import { handlers } from "@/server/auth";
 export const { GET, POST } = handlers;
 ```
 
-- [ ] **Step 9: Criar `src/middleware.ts`**
+- [ ] **Step 9: Criar `src/proxy.ts`** (Next 16 renomeou a convenção `middleware` → `proxy`; roda em runtime Node.js por padrão. Ver `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`)
 
 ```ts
 import NextAuth from "next-auth";
@@ -1182,16 +1182,16 @@ export const config = {
 - [ ] **Step 10: Verificar build e testes**
 
 Run: `npm run test` → Expected: todos os testes passam (taco + login).
-Run: `npm run build` → Expected: build sem erros (confirma que o middleware não puxou Prisma/bcrypt para o bundle edge).
+Run: `npm run build` → Expected: build sem erros e sem warning de convenção depreciada (proxy no lugar de middleware). Manter `config.ts` sem imports de Prisma/bcrypt mesmo assim — o proxy roda a cada request e deve carregar o mínimo.
 
 - [ ] **Step 11: Commit**
 
 ```bash
-git add src/server/services/login.ts src/server/services/login.test.ts src/server/auth src/app/api/auth src/middleware.ts package.json package-lock.json
-git commit -m "feat: autenticacao com Auth.js v5, roles e middleware de protecao"
+git add src/server/services/login.ts src/server/services/login.test.ts src/server/auth src/app/api/auth src/proxy.ts package.json package-lock.json
+git commit -m "feat: autenticacao com Auth.js v5, roles e proxy de protecao"
 ```
 
-**Critérios de aceite (Codex):** testes do serviço passam; `npm run build` passa; `config.ts` não importa nada com dependência de Node runtime; acesso a `/admin` sem sessão redireciona para `/login`; sessão JWT carrega `id`, `role`, `mustChangePassword`.
+**Critérios de aceite (Codex):** testes do serviço passam; `npm run build` passa sem warning de convenção depreciada; `config.ts` não importa Prisma/bcrypt; acesso a `/admin` sem sessão redireciona para `/login`; sessão JWT carrega `id`, `role`, `mustChangePassword`.
 
 ---
 

@@ -31,7 +31,7 @@ App web para consultoria de nutrição (< 50 pacientes): equipe define planos al
 
 - **A IA nunca calcula nutrição.** Valores nutricionais são sempre somados pelo sistema a partir de ingredientes verificados (tabela TACO). O LLM só seleciona, ranqueia e mapeia texto → ingredientes do banco.
 - Lógica de negócio vive em `src/server/services/` como funções testáveis (dependências injetáveis); route handlers e server actions são finos.
-- `src/server/auth/config.ts` é edge-safe: nunca importe Prisma, bcrypt ou qualquer coisa com dependência de Node runtime nele.
+- `src/server/auth/config.ts` é importado pelo `src/proxy.ts` (Next 16 renomeou `middleware` → `proxy`), que roda a cada request: nunca importe Prisma, bcrypt ou nada pesado nele.
 - Snapshots imutáveis: registros históricos (`MealLog`) congelam macros no momento do registro.
 
 ## Convenções
