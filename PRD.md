@@ -2,7 +2,7 @@
 
 > **Stack:** Next.js (App Router) · TypeScript · Tailwind CSS v4 · PostgreSQL (Render) · Prisma 7 · Auth.js v5 · pg-boss · Anthropic Claude (Sonnet + Haiku) · Cloudflare R2 · Vitest · Zod v4.
 > **Idioma do código:** Inglês. **Idioma da interface:** Português brasileiro. **Timezone:** `America/Sao_Paulo`.
-> **Documentos relacionados:** requisitos originais em [`PROJECT_BRIEF.md`](../PROJECT_BRIEF.md) · arquitetura detalhada em [`docs/superpowers/specs/2026-07-03-nutrition-app-design.md`](superpowers/specs/2026-07-03-nutrition-app-design.md) · planos por fase em `docs/superpowers/plans/`.
+> **Documentos relacionados:** requisitos originais em [`PROJECT_BRIEF.md`](PROJECT_BRIEF.md) · arquitetura detalhada em [`docs/superpowers/specs/2026-07-03-nutrition-app-design.md`](docs/superpowers/specs/2026-07-03-nutrition-app-design.md) · planos por fase em `docs/superpowers/plans/`.
 > Este PRD é o documento de requisitos canônico. Em divergência entre documentos, vale o PRD; em detalhe de arquitetura não coberto aqui, vale o design doc.
 
 ---
