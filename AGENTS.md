@@ -9,7 +9,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 App web para consultoria de nutrição (< 50 pacientes): equipe define planos alimentares com metas de kcal/macros por refeição; uma camada de IA (Claude API) sugere, gera e avalia receitas sem nunca estourar essas metas.
 
 **Documentos canônicos — leia antes de qualquer tarefa:**
-- Requisitos: `PROJECT_BRIEF.md`
+- Requisitos (canônico): `docs/PRD.md` — em divergência entre documentos, vale o PRD
+- Brief original: `PROJECT_BRIEF.md`
 - Design aprovado: `docs/superpowers/specs/2026-07-03-nutrition-app-design.md`
 - Plano da fase atual: `docs/superpowers/plans/2026-07-03-fase-1-fundacao.md`
 
