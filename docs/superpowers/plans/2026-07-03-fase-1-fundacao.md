@@ -142,7 +142,7 @@ export type AuthUser = {
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
+  email: z.email("Email inválido"), // zod v4 (o template do Next 16 já traz zod ^4)
   password: z.string().min(1, "Informe a senha"),
 });
 
