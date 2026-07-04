@@ -6,7 +6,7 @@
 <title>Preview visual — App do Paciente</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..700&family=Manrope:wght@400..700&display=swap" rel="stylesheet" />
 <style>
 :root{
   --terracotta:#BF6B2C; --terracotta-deep:#A65922;
@@ -14,8 +14,15 @@
   --cream:#F4EDE0; --cream-2:#EDE3CE; --paper:#FFFCF6;
   --ink:#2B2622; --charcoal:#241D17; --charcoal-2:#332A21;
   --muted:#8D7F6D; --line:#E6DAC4;
-  --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif;
+  --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif; --dw:400; --dls:0;
 }
+body[data-font="dm"]{--serif:"DM Sans",sans-serif;--dw:600;--dls:-0.02em}
+body[data-font="jakarta"]{--serif:"Plus Jakarta Sans",sans-serif;--dw:600;--dls:-0.015em}
+body[data-font="manrope"]{--serif:"Manrope",sans-serif;--dw:600;--dls:-0.015em}
+body[data-font="fraunces"]{--serif:"Fraunces",Georgia,serif;--dw:400;--dls:0}
+.font-switch{position:fixed;top:10px;left:50%;transform:translateX(-50%);z-index:50;display:flex;gap:6px;align-items:center;background:rgba(255,252,246,.96);border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:11px;color:var(--muted);box-shadow:0 6px 18px rgba(43,38,34,.14)}
+.font-switch button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:11px;font-family:var(--sans);color:var(--ink);cursor:pointer}
+.font-switch button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#E9E2D2;font-family:var(--sans);color:var(--ink);display:flex;gap:36px;justify-content:center;align-items:flex-start;padding:36px 24px;min-height:100vh}
 .phone{width:390px;height:900px;border-radius:48px;background:var(--cream);overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(43,38,34,.28);flex-shrink:0}
@@ -30,13 +37,13 @@ svg{display:block}
 .avatar{width:40px;height:40px;border-radius:50%;border:2px solid rgba(247,241,230,.8);background:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=60&auto=format&fit=crop') center/cover}
 .hero1 .greet{position:absolute;left:22px;right:22px;bottom:52px;color:#F7F1E6}
 .hero1 .greet .eyebrow{color:var(--caramel-light)}
-.hero1 h1{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.1;margin-top:6px}
+.hero1 h1{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:34px;line-height:1.1;margin-top:6px}
 .hero1 h1 em{font-style:italic;color:var(--caramel-light)}
 
 .panel{position:relative;margin-top:-36px;background:var(--charcoal);border-radius:32px 32px 0 0;padding:24px 22px 40px;color:var(--cream)}
 .panel .eyebrow{color:var(--caramel)}
 .saldo{display:flex;align-items:baseline;gap:8px;margin:8px 0 16px}
-.saldo b{font-family:var(--serif);font-weight:400;font-size:38px;letter-spacing:-.01em}
+.saldo b{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:38px;letter-spacing:-.01em}
 .saldo span{font-size:13px;color:#B9AA95}
 .bar-row{margin-bottom:11px}
 .bar-row .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:#CBBDA8;margin-bottom:5px}
@@ -46,12 +53,12 @@ svg{display:block}
 
 .sheet1{position:relative;margin-top:-24px;background:var(--paper);border-radius:32px 32px 0 0;padding:24px 18px 96px;min-height:340px}
 .sheet1 .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding:0 4px}
-.sheet1 .head h2{font-family:var(--serif);font-weight:400;font-size:21px}
+.sheet1 .head h2{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:21px}
 .sheet1 .head a{font-size:12px;color:var(--terracotta);font-weight:500;text-decoration:none}
 .meal{display:flex;gap:12px;align-items:center;padding:10px;border-radius:20px;margin-bottom:10px;background:var(--paper);border:1px solid var(--line)}
 .meal .ph{width:58px;height:58px;border-radius:16px;flex-shrink:0;background-size:cover;background-position:center}
 .meal .tx{flex:1;min-width:0}
-.meal .tx b{display:block;font-family:var(--serif);font-weight:400;font-size:16.5px}
+.meal .tx b{display:block;font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:16.5px}
 .meal .tx span{font-size:12px;color:var(--muted)}
 .badge{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;padding:5px 10px;border-radius:99px;background:var(--cream-2);color:#7A6446;white-space:nowrap}
 .meal.active{border:1.5px solid var(--terracotta);box-shadow:0 10px 26px rgba(191,107,44,.14)}
@@ -68,7 +75,7 @@ svg{display:block}
 .hero2 .top{position:absolute;top:22px;left:18px;right:18px;display:flex;justify-content:space-between}
 .hero2 .info{position:absolute;left:22px;right:22px;bottom:64px;color:#F7F1E6}
 .hero2 .info .eyebrow{color:var(--caramel-light)}
-.hero2 h1{font-family:var(--serif);font-weight:400;font-size:29px;line-height:1.12;margin-top:6px}
+.hero2 h1{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:29px;line-height:1.12;margin-top:6px}
 .chips{position:absolute;bottom:-19px;left:16px;right:0;display:flex;gap:8px;overflow:hidden;padding-right:16px;z-index:3}
 .chip{padding:10px 16px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
 .chip.on{background:var(--caramel-light);color:#4A3616}
@@ -78,16 +85,16 @@ svg{display:block}
 .lbl-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-bottom:10px}
 .portions{display:flex;gap:9px;margin-bottom:20px}
 .portion{flex:1;border:1px solid var(--line);border-radius:16px;padding:11px 4px;text-align:center;color:var(--muted)}
-.portion b{display:block;font-family:var(--serif);font-weight:400;font-size:19px;color:inherit}
+.portion b{display:block;font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:19px;color:inherit}
 .portion span{font-size:10px}
 .portion.on{border:1.5px solid var(--ink);color:var(--ink);background:var(--cream)}
 .macros{border-top:1px solid var(--line)}
 .macros .row{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
 .macros .row span{color:var(--muted)}
-.macros .row b{font-family:var(--serif);font-weight:400;font-size:16px}
+.macros .row b{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:16px}
 .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
 .foot .kcal span{font-size:11px;color:var(--muted);display:block}
-.foot .kcal b{font-family:var(--serif);font-weight:400;font-size:27px}
+.foot .kcal b{font-family:var(--serif);font-weight:var(--dw);letter-spacing:var(--dls);font-size:27px}
 .btn-dark{background:var(--charcoal);color:var(--cream);font-size:14px;font-weight:600;padding:15px 30px;border-radius:999px}
 .fine{font-size:10.5px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5}
 .ai-strip{display:flex;align-items:center;gap:9px;background:var(--cream-2);border-radius:14px;padding:11px 14px;font-size:12px;color:#7A6446;margin-top:14px}
@@ -95,7 +102,15 @@ svg{display:block}
 .spin{animation:spin 1.2s linear infinite}
 </style>
 </head>
-<body>
+<body data-font="dm">
+
+<div class="font-switch">
+  Fonte:
+  <button data-f="dm" class="on">DM Sans</button>
+  <button data-f="jakarta">Plus Jakarta</button>
+  <button data-f="manrope">Manrope</button>
+  <button data-f="fraunces">Fraunces (serifa)</button>
+</div>
 
 <!-- ============ TELA 1 · HOJE ============ -->
 <div class="phone">
@@ -205,5 +220,13 @@ svg{display:block}
   </div>
 </div>
 
+<script>
+document.querySelectorAll('.font-switch button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.body.dataset.font = btn.dataset.f;
+    document.querySelectorAll('.font-switch button').forEach(function (b) { b.classList.toggle('on', b === btn); });
+  });
+});
+</script>
 </body>
 </html>

@@ -86,6 +86,11 @@ O sistema é **single-tenant** (uma consultoria) por decisão explícita, mas se
 - Aplicativo mobile nativo (o app do paciente é web mobile-first).
 - Testes E2E (o núcleo determinístico tem cobertura unitária completa via TDD).
 
+**Backlog pós-MVP** — fora do escopo atual, mas decididos como direção de evolução (registrados em 04/07/2026, a elaborar em spec própria quando priorizados):
+
+- **Gráfico de correlação métrica × resultado:** dispersão relacionando comportamento e desfecho ao longo do tempo (ex.: aderência ao plano ou kcal média diária × evolução de peso), no Progresso do paciente e no dashboard admin. Comunica ao paciente *por que* seguir o plano funciona, com os dados dele mesmo.
+- **Conselho instantâneo pós-registro:** ao registrar uma refeição, a IA gera um comentário curto personalizado (ex.: "almoço forte em proteína — seu jantar pode ser mais leve") com chips de ação (sugestões para a próxima refeição, lanches compatíveis com o saldo). Encaixa na arquitetura existente como novo tipo de `AiJob` (`ADVICE`), assíncrono como os demais; conta no limite diário de IA.
+
 ---
 
 ## 7. Visão Funcional do Sistema
