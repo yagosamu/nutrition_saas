@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Preview visual — App do Paciente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --terracotta:#BF6B2C; --terracotta-deep:#A65922;
+  --caramel:#C89B62; --caramel-light:#E9CFA3;
+  --cream:#F4EDE0; --cream-2:#EDE3CE; --paper:#FFFCF6;
+  --ink:#2B2622; --charcoal:#241D17; --charcoal-2:#332A21;
+  --muted:#8D7F6D; --line:#E6DAC4;
+  --serif:"Fraunces",Georgia,serif; --sans:"Inter",system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#E9E2D2;font-family:var(--sans);color:var(--ink);display:flex;gap:36px;justify-content:center;align-items:flex-start;padding:36px 24px;min-height:100vh}
+.phone{width:390px;height:900px;border-radius:48px;background:var(--cream);overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(43,38,34,.28);flex-shrink:0}
+.eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.chip-glass{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:rgba(36,29,23,.45);backdrop-filter:blur(8px);color:#F7F1E6;font-size:12px;font-weight:500}
+svg{display:block}
+
+/* ---------- tela 1 : hoje ---------- */
+.hero1{height:320px;position:relative;background:url('https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&q=80&auto=format&fit=crop') center/cover}
+.hero1 .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(24,18,13,.30) 0%,rgba(24,18,13,.05) 35%,rgba(24,18,13,.78) 100%)}
+.hero1 .top{position:absolute;top:22px;left:18px;right:18px;display:flex;justify-content:space-between;align-items:center}
+.avatar{width:40px;height:40px;border-radius:50%;border:2px solid rgba(247,241,230,.8);background:url('https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=60&auto=format&fit=crop') center/cover}
+.hero1 .greet{position:absolute;left:22px;right:22px;bottom:52px;color:#F7F1E6}
+.hero1 .greet .eyebrow{color:var(--caramel-light)}
+.hero1 h1{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1.1;margin-top:6px}
+.hero1 h1 em{font-style:italic;color:var(--caramel-light)}
+
+.panel{position:relative;margin-top:-36px;background:var(--charcoal);border-radius:32px 32px 0 0;padding:24px 22px 40px;color:var(--cream)}
+.panel .eyebrow{color:var(--caramel)}
+.saldo{display:flex;align-items:baseline;gap:8px;margin:8px 0 16px}
+.saldo b{font-family:var(--serif);font-weight:400;font-size:38px;letter-spacing:-.01em}
+.saldo span{font-size:13px;color:#B9AA95}
+.bar-row{margin-bottom:11px}
+.bar-row .lbl{display:flex;justify-content:space-between;font-size:11.5px;color:#CBBDA8;margin-bottom:5px}
+.bar-row .lbl b{color:var(--cream);font-weight:500}
+.track{height:6px;border-radius:99px;background:var(--charcoal-2)}
+.fill{height:100%;border-radius:99px;background:var(--caramel)}
+
+.sheet1{position:relative;margin-top:-24px;background:var(--paper);border-radius:32px 32px 0 0;padding:24px 18px 96px;min-height:340px}
+.sheet1 .head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;padding:0 4px}
+.sheet1 .head h2{font-family:var(--serif);font-weight:400;font-size:21px}
+.sheet1 .head a{font-size:12px;color:var(--terracotta);font-weight:500;text-decoration:none}
+.meal{display:flex;gap:12px;align-items:center;padding:10px;border-radius:20px;margin-bottom:10px;background:var(--paper);border:1px solid var(--line)}
+.meal .ph{width:58px;height:58px;border-radius:16px;flex-shrink:0;background-size:cover;background-position:center}
+.meal .tx{flex:1;min-width:0}
+.meal .tx b{display:block;font-family:var(--serif);font-weight:400;font-size:16.5px}
+.meal .tx span{font-size:12px;color:var(--muted)}
+.badge{font-size:10px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;padding:5px 10px;border-radius:99px;background:var(--cream-2);color:#7A6446;white-space:nowrap}
+.meal.active{border:1.5px solid var(--terracotta);box-shadow:0 10px 26px rgba(191,107,44,.14)}
+.meal-cta{display:flex;gap:8px;margin:2px 0 14px;padding-left:4px}
+.btn-solid{display:inline-flex;align-items:center;gap:7px;background:var(--terracotta);color:#FFF6E9;font-size:13px;font-weight:600;padding:10px 18px;border-radius:999px}
+.btn-ghost{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--line);color:#7A6446;font-size:13px;font-weight:500;padding:10px 16px;border-radius:999px}
+.nav{position:absolute;bottom:0;left:0;right:0;background:rgba(255,252,246,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;padding:12px 10px 26px}
+.nav div{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted)}
+.nav div.on{color:var(--terracotta);font-weight:600}
+
+/* ---------- tela 2 : almoço ---------- */
+.hero2{height:380px;position:relative;background:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80&auto=format&fit=crop') center/cover}
+.hero2 .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(24,18,13,.35) 0%,rgba(24,18,13,0) 40%,rgba(24,18,13,.82) 100%)}
+.hero2 .top{position:absolute;top:22px;left:18px;right:18px;display:flex;justify-content:space-between}
+.hero2 .info{position:absolute;left:22px;right:22px;bottom:64px;color:#F7F1E6}
+.hero2 .info .eyebrow{color:var(--caramel-light)}
+.hero2 h1{font-family:var(--serif);font-weight:400;font-size:29px;line-height:1.12;margin-top:6px}
+.chips{position:absolute;bottom:-19px;left:16px;right:0;display:flex;gap:8px;overflow:hidden;padding-right:16px;z-index:3}
+.chip{padding:10px 16px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--caramel-light);color:#4A3616}
+.chip.off{background:rgba(36,29,23,.55);backdrop-filter:blur(8px);color:#EFE7D8;font-weight:500}
+
+.sheet2{position:relative;background:var(--paper);padding:38px 20px 24px;min-height:444px}
+.lbl-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);font-weight:500;margin-bottom:10px}
+.portions{display:flex;gap:9px;margin-bottom:20px}
+.portion{flex:1;border:1px solid var(--line);border-radius:16px;padding:11px 4px;text-align:center;color:var(--muted)}
+.portion b{display:block;font-family:var(--serif);font-weight:400;font-size:19px;color:inherit}
+.portion span{font-size:10px}
+.portion.on{border:1.5px solid var(--ink);color:var(--ink);background:var(--cream)}
+.macros{border-top:1px solid var(--line)}
+.macros .row{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+.macros .row span{color:var(--muted)}
+.macros .row b{font-family:var(--serif);font-weight:400;font-size:16px}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.foot .kcal span{font-size:11px;color:var(--muted);display:block}
+.foot .kcal b{font-family:var(--serif);font-weight:400;font-size:27px}
+.btn-dark{background:var(--charcoal);color:var(--cream);font-size:14px;font-weight:600;padding:15px 30px;border-radius:999px}
+.fine{font-size:10.5px;color:var(--muted);text-align:center;margin-top:16px;line-height:1.5}
+.ai-strip{display:flex;align-items:center;gap:9px;background:var(--cream-2);border-radius:14px;padding:11px 14px;font-size:12px;color:#7A6446;margin-top:14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1.2s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- ============ TELA 1 · HOJE ============ -->
+<div class="phone">
+  <div class="hero1">
+    <div class="scrim"></div>
+    <div class="top">
+      <div class="avatar"></div>
+      <span class="chip-glass"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+    </div>
+    <div class="greet">
+      <div class="eyebrow">Sexta · 4 de julho</div>
+      <h1>Bom dia, <em>Ana.</em></h1>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="eyebrow">Saldo de hoje</div>
+    <div class="saldo"><b>1.240 kcal</b><span>restantes de 1.800</span></div>
+    <div class="bar-row"><div class="lbl"><span>Proteína</span><b>82 / 130 g</b></div><div class="track"><div class="fill" style="width:63%"></div></div></div>
+    <div class="bar-row"><div class="lbl"><span>Carboidrato</span><b>96 / 180 g</b></div><div class="track"><div class="fill" style="width:53%"></div></div></div>
+    <div class="bar-row" style="margin-bottom:0"><div class="lbl"><span>Gordura</span><b>31 / 60 g</b></div><div class="track"><div class="fill" style="width:52%"></div></div></div>
+  </div>
+
+  <div class="sheet1">
+    <div class="head"><h2>Refeições de hoje</h2><a href="#">meu plano</a></div>
+
+    <div class="meal">
+      <div class="ph" style="background-image:url('https://images.unsplash.com/photo-1493770348161-369560ae357d?w=200&q=60&auto=format&fit=crop')"></div>
+      <div class="tx"><b>Café da manhã</b><span>418 kcal registradas</span></div>
+      <span class="badge">✓ na meta</span>
+    </div>
+
+    <div class="meal active" style="flex-wrap:wrap">
+      <div class="ph" style="background-image:url('https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=60&auto=format&fit=crop')"></div>
+      <div class="tx"><b>Almoço</b><span>meta 650 kcal · agora</span></div>
+      <div class="meal-cta" style="width:100%;margin:6px 0 2px">
+        <span class="btn-solid"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>Ver sugestões</span>
+        <span class="btn-ghost">Dieta base</span>
+      </div>
+    </div>
+
+    <div class="meal" style="opacity:.75">
+      <div class="ph" style="background-image:url('https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=200&q=60&auto=format&fit=crop')"></div>
+      <div class="tx"><b>Lanche da tarde</b><span>meta 250 kcal</span></div>
+    </div>
+    <div class="meal" style="opacity:.75;margin-bottom:0">
+      <div class="ph" style="background-image:url('https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=200&q=60&auto=format&fit=crop')"></div>
+      <div class="tx"><b>Jantar</b><span>meta 550 kcal</span></div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <div class="on"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Hoje</div>
+    <div><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>Diário</div>
+    <div><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>Progresso</div>
+    <div><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>Materiais</div>
+  </div>
+</div>
+
+<!-- ============ TELA 2 · ALMOÇO ============ -->
+<div class="phone">
+  <div class="hero2">
+    <div class="scrim"></div>
+    <div class="top">
+      <span class="chip-glass"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg></span>
+      <span class="chip-glass">7/10 análises de IA hoje</span>
+    </div>
+    <div class="info">
+      <div class="eyebrow">Sugestão da IA · Almoço</div>
+      <h1>Frango grelhado com<br/>legumes assados</h1>
+    </div>
+    <div class="chips">
+      <span class="chip on">Sugestão 1</span>
+      <span class="chip off">Sugestão 2</span>
+      <span class="chip off">Sugestão 3</span>
+      <span class="chip off"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-2px"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg></span>
+    </div>
+  </div>
+
+  <div class="sheet2">
+    <div class="lbl-row"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Porção para bater sua meta</div>
+    <div class="portions">
+      <div class="portion"><b>¾</b><span>485 kcal</span></div>
+      <div class="portion"><b>1</b><span>516 kcal</span></div>
+      <div class="portion on"><b>1¼</b><span>645 kcal</span></div>
+      <div class="portion"><b>1½</b><span>774 kcal</span></div>
+    </div>
+
+    <div class="macros">
+      <div class="row"><span>Proteína</span><b>48 g</b></div>
+      <div class="row"><span>Carboidrato</span><b>52 g</b></div>
+      <div class="row"><span>Gordura</span><b>18 g</b></div>
+      <div class="row"><span>Fibra</span><b>9 g</b></div>
+    </div>
+
+    <div class="foot">
+      <div class="kcal"><span>Total da porção</span><b>645 kcal</b></div>
+      <span class="btn-dark">Registrar almoço</span>
+    </div>
+
+    <div class="ai-strip">
+      <svg class="spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.2-8.56"/></svg>
+      Gerando novas sugestões… você pode continuar navegando.
+    </div>
+
+    <div class="fine">Macros somados ingrediente a ingrediente (tabela TACO).<br/>A IA sugere — quem calcula é o sistema.</div>
+  </div>
+</div>
+
+</body>
+</html>

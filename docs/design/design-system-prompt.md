@@ -20,11 +20,13 @@ O app é usado diariamente por pacientes de uma consultoria de nutrição, no ce
 - O logo usa serifa display elegante em caixa alta com tracking largo
 
 **Referências visuais (síntese do que aproveitar de cada):**
-1. **ASAGIRI (matcha, editorial):** tom calmo e premium; serifa display com itálico expressivo em palavras-chave; eyebrow labels em caps com tracking largo ("01 · ORIGIN"); stat blocks (valor grande serifado + label caps); alternância de seções claras e escuras; footer escuro. Fornece o *clima*.
-2. **VITALIS (nutrição/longevidade):** os *componentes do nosso domínio* — tabs de refeição com underline no ativo; lista de pratos com item ativo destacado (título serifado escuro) e inativos esmaecidos; pills de tag com check; card de macros em linhas label-esquerda/valor-direita; card glass de score com barras de progresso; carrossel de cards de ingredientes; botão pill escuro.
-3. **App de reserva de quadras (mobile):** a *estrutura mobile* — fluxo contínuo denso, cards grandes com raio generoso (rounded-2xl/3xl), chips de seleção (datas, horários), grid de opções selecionáveis com estado ativo contornado, CTA largo fixo na base do fluxo, alternância claro/escuro entre blocos, imagem com overlay e conteúdo sobreposto.
+1. **App de reserva de quadras (mobile) — REFERÊNCIA ESTRUTURAL PRINCIPAL:** fotografia full-bleed como protagonista, com scrim escuro e conteúdo sobreposto; camadas fluidas que se sobrepõem (foto → painel escuro → sheet claro com raio grande subindo por cima, via margem negativa); chips de seleção horizontais (datas, opções) com ativo contornado; grid de opções selecionáveis; CTA largo escuro na base ("Book now"); painéis escuros em tom quente com acento claro vibrante (no nosso caso: charcoal quente + caramelo/terracota, no deles: preto + lima).
+2. **ASAGIRI (matcha, editorial):** o *clima tipográfico* — serifa display com itálico expressivo em palavras-chave; eyebrow labels em caps com tracking largo; stat blocks (valor grande serifado + label caps).
+3. **VITALIS (nutrição/longevidade):** os *componentes do domínio* — tabs de refeição; lista com item ativo destacado; pills de tag com check; linhas de macro label-esquerda/valor-direita; barras de progresso de score.
 
-**Verde-oliva profundo (~`#3A4A2E`):** herdado das referências 1 e 2 como cor de seções escuras, do card de saldo do dia e de estados de sucesso nutricional. Não compete com a terracota (ação) — são papéis distintos.
+**ATENÇÃO — cores das referências:** os verdes (matcha do ASAGIRI, oliva do VITALIS) **não fazem parte da paleta** — as referências 2 e 3 valem pela fluidez, tipografia e componentes, nunca pela cor. Superfícies escuras são **charcoal quente (~`#241D17`)**; acentos sobre escuro são caramelo/creme; ação é terracota. Verde só é admitido, discreto, em micro-elementos semânticos de sucesso (dot/badge pequeno), nunca em superfícies.
+
+**Fotografia é o material principal do app:** toda receita exibida tem foto de alta qualidade (hero full-bleed no detalhe, thumbnail nos cards e listas). Gradientes são proibidos como decoração, mas **obrigatórios como scrim** sobre fotografia para garantir contraste do texto sobreposto. Protótipo visual de referência: `public/design-preview.html`.
 </context>
 
 <objective>
@@ -36,7 +38,7 @@ O app é usado diariamente por pacientes de uma consultoria de nutrição, no ce
 <hard_rules>
 1. Interface 100% em português brasileiro.
 2. Mobile-first: tudo projetado para ~390px; desktop é adaptação, não o contrário.
-3. **Fluxo contínuo e denso**: seções encostadas, sem grandes vazios; a respiração vem da alternância de superfícies (creme ↔ branco ↔ verde-oliva escuro), não de espaço em branco.
+3. **Fluxo contínuo em camadas**: seções emendadas por sobreposição (foto → painel charcoal → sheet claro com raio grande subindo por margem negativa), sem grandes vazios; a respiração vem da alternância de superfícies (foto ↔ charcoal ↔ creme/branco), não de espaço em branco.
 4. Tipografia: serifa display para títulos e valores de destaque (itálico como recurso expressivo pontual); sans para corpo e UI; labels/eyebrows em caixa alta com tracking largo.
 5. NENHUM estilo inline; NENHUMA cor fora dos tokens `@theme`.
 6. Todo componente com estados documentados lado a lado: default / hover / active / focus / disabled / loading / empty / error (os que se aplicarem).
@@ -55,7 +57,7 @@ A página `/design-system` tem navegação fixa no topo com âncoras para:
 **1 — Tipografia.** Tabela de especificação com preview vivo + tamanho/linha: Título de página (serif) → Título de seção (serif, com variante itálica) → Título de card → Valor de destaque (serif, números grandes: kcal, peso) → Eyebrow/label (caps + tracking) → Corpo → Corpo pequeno → Helper/caption.
 
 **2 — Cores, Superfícies e Estados.**
-2.1 Interface: fundo creme, card branco-quente, seção escura verde-oliva, header/bottom-nav.
+2.1 Interface: fundo creme, card branco-quente, painel escuro charcoal, foto com scrim, header/bottom-nav.
 2.2 Semânticas de sistema: sucesso / alerta / erro / info / neutro-desabilitado — badge, mensagem inline e toast de cada.
 2.3 **Semânticas nutricionais** (núcleo do produto): dentro da meta / próximo do limite / meta estourada / refeição pulada / não registrada — aplicadas em barra de progresso, badge de refeição e no card de saldo.
 2.4 Estados de IA: processando (shimmer) / pronto / falhou (com retry) / limite diário atingido.
@@ -68,7 +70,7 @@ A página `/design-system` tem navegação fixa no topo com âncoras para:
 **5 — Dados Nutricionais.**
 5.1 Linhas de macro (label esquerda, valor direita, divisor sutil — padrão VITALIS).
 5.2 Barras de progresso de kcal/macro com os estados nutricionais da seção 2.3.
-5.3 **Card de saldo do dia** (superfície verde-oliva escura, valores serifados claros, barras) — o componente-assinatura do app.
+5.3 **Painel de saldo do dia** (superfície charcoal quente, valores serifados em creme, barras em caramelo) — o componente-assinatura do app.
 5.4 Stat blocks (peso atual, variação, aderência — padrão ASAGIRI).
 5.5 Card de receita/refeição: imagem com overlay + badges, variante sem imagem, estado ativo/selecionado, fator de porção visível ("¾ da receita").
 5.6 Card de veredito de receita externa: cabe / cabe com X% / não cabe — com motivo e ressalvas de ingredientes não mapeados.
