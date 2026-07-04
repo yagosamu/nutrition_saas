@@ -23,7 +23,9 @@ Antes de integrar/prosseguir sobre código do Codex:
 
 - Toda a UI em **português brasileiro**.
 - App do paciente (`/app`): mobile-first — é onde o paciente vive no dia a dia. Painel admin (`/admin`): desktop-first.
-- Tailwind v4 puro, sem biblioteca de componentes no MVP. Paleta base: emerald (ação/marca) sobre zinc (neutros).
+- Tailwind v4 puro, sem biblioteca de componentes no MVP.
+- **Identidade visual (marca Manuela Giglio):** terracota (~`#BF6B2C`, ação/marca), caramelo (~`#C89B62`, apoio), creme (~`#F2EADA`/`#EDE3CE`, fundos), tinta marrom-escura (~`#2B2622`, texto), verde-oliva profundo (~`#3A4A2E`, card de saldo, seções escuras e sucesso). Títulos em serifa display editorial; UI/corpo em sans; labels em caixa alta com tracking largo. Direção completa e referências: `docs/design/design-system-prompt.md`.
+- **Layout do `/app`:** fluxo contínuo mobile-first, denso — alternância de superfícies (creme ↔ branco ↔ verde-oliva) em vez de grandes espaços em branco. As telas da Fase 1 (login, shells) estão provisórias em emerald/zinc e serão re-estilizadas quando o design system for gerado.
 - Server Components por padrão; `"use client"` só onde há interatividade real (forms com `useActionState`, etc.).
 - Estados de IA são assíncronos por design (fila + worker): toda UI que dispara IA precisa de estado "processando" e de erro com retry — nunca uma request travada esperando.
 
