@@ -21,7 +21,7 @@ O app é usado diariamente por pacientes de uma consultoria de nutrição, no ce
 
 **Referências visuais (síntese do que aproveitar de cada):**
 1. **App de reserva de quadras (mobile) — REFERÊNCIA ESTRUTURAL PRINCIPAL:** fotografia full-bleed como protagonista, com scrim escuro e conteúdo sobreposto; camadas fluidas que se sobrepõem (foto → painel escuro → sheet claro com raio grande subindo por cima, via margem negativa); chips de seleção horizontais (datas, opções) com ativo contornado; grid de opções selecionáveis; CTA largo escuro na base ("Book now"); painéis escuros em tom quente com acento claro vibrante (no nosso caso: charcoal quente + caramelo/terracota, no deles: preto + lima).
-2. **ASAGIRI (matcha, editorial):** o *clima tipográfico* — serifa display com itálico expressivo em palavras-chave; eyebrow labels em caps com tracking largo; stat blocks (valor grande serifado + label caps).
+2. **ASAGIRI (matcha, editorial):** o *clima* — hierarquia editorial com destaque expressivo em palavras-chave; eyebrow labels em caps com tracking largo; stat blocks (valor grande em display + label caps). (Obs.: a serifa desta referência foi testada e descartada — decisão final de fonte abaixo.)
 3. **VITALIS (nutrição/longevidade):** os *componentes do domínio* — tabs de refeição; lista com item ativo destacado; pills de tag com check; linhas de macro label-esquerda/valor-direita; barras de progresso de score.
 
 **ATENÇÃO — cores das referências:** os verdes (matcha do ASAGIRI, oliva do VITALIS) **não fazem parte da paleta** — as referências 2 e 3 valem pela fluidez, tipografia e componentes, nunca pela cor. Superfícies escuras são **charcoal quente (~`#241D17`)**; acentos sobre escuro são caramelo/creme; ação é terracota. Verde só é admitido, discreto, em micro-elementos semânticos de sucesso (dot/badge pequeno), nunca em superfícies.
@@ -39,7 +39,7 @@ O app é usado diariamente por pacientes de uma consultoria de nutrição, no ce
 1. Interface 100% em português brasileiro.
 2. Mobile-first: tudo projetado para ~390px; desktop é adaptação, não o contrário.
 3. **Fluxo contínuo em camadas**: seções emendadas por sobreposição (foto → painel charcoal → sheet claro com raio grande subindo por margem negativa), sem grandes vazios; a respiração vem da alternância de superfícies (foto ↔ charcoal ↔ creme/branco), não de espaço em branco.
-4. Tipografia: serifa display para títulos e valores de destaque (itálico como recurso expressivo pontual); sans para corpo e UI; labels/eyebrows em caixa alta com tracking largo.
+4. Tipografia (decisão do usuário em 04/07/2026, testada no protótipo): **Manrope** (peso 600, tracking ~-0.015em) para títulos e valores de destaque; **Inter** para corpo e UI; labels/eyebrows em caixa alta com tracking largo. Manrope não tem itálico verdadeiro — destaque de palavra-chave em título é feito por **cor** (caramelo sobre escuro, terracota sobre claro), não por itálico.
 5. NENHUM estilo inline; NENHUMA cor fora dos tokens `@theme`.
 6. Todo componente com estados documentados lado a lado: default / hover / active / focus / disabled / loading / empty / error (os que se aplicarem).
 7. Toda UI que dispara IA tem obrigatoriamente estado "processando" (skeleton/shimmer + mensagem) e estado de erro com botão "tentar de novo" — nunca um botão que trava esperando resposta.
@@ -54,7 +54,7 @@ A página `/design-system` tem navegação fixa no topo com âncoras para:
 
 **0 — Shell do App (clone de referência).** O frame real do `/app`: header compacto (saudação + data ou título + voltar), área de conteúdo contínua, bottom nav fixa com 4 destinos (Hoje · Diário · Progresso · Materiais). Demonstrar com conteúdo de exemplo real.
 
-**1 — Tipografia.** Tabela de especificação com preview vivo + tamanho/linha: Título de página (serif) → Título de seção (serif, com variante itálica) → Título de card → Valor de destaque (serif, números grandes: kcal, peso) → Eyebrow/label (caps + tracking) → Corpo → Corpo pequeno → Helper/caption.
+**1 — Tipografia.** Tabela de especificação com preview vivo + tamanho/linha: Título de página (Manrope 600) → Título de seção (Manrope 600, variante com palavra-chave em cor) → Título de card → Valor de destaque (Manrope, números grandes: kcal, peso) → Eyebrow/label (caps + tracking) → Corpo (Inter) → Corpo pequeno → Helper/caption.
 
 **2 — Cores, Superfícies e Estados.**
 2.1 Interface: fundo creme, card branco-quente, painel escuro charcoal, foto com scrim, header/bottom-nav.
@@ -70,7 +70,7 @@ A página `/design-system` tem navegação fixa no topo com âncoras para:
 **5 — Dados Nutricionais.**
 5.1 Linhas de macro (label esquerda, valor direita, divisor sutil — padrão VITALIS).
 5.2 Barras de progresso de kcal/macro com os estados nutricionais da seção 2.3.
-5.3 **Painel de saldo do dia** (superfície charcoal quente, valores serifados em creme, barras em caramelo) — o componente-assinatura do app.
+5.3 **Painel de saldo do dia** (superfície charcoal quente, valores display em creme, barras em caramelo) — o componente-assinatura do app.
 5.4 Stat blocks (peso atual, variação, aderência — padrão ASAGIRI).
 5.5 Card de receita/refeição: imagem com overlay + badges, variante sem imagem, estado ativo/selecionado, fator de porção visível ("¾ da receita").
 5.6 Card de veredito de receita externa: cabe / cabe com X% / não cabe — com motivo e ressalvas de ingredientes não mapeados.
