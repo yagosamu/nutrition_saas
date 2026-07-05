@@ -435,20 +435,20 @@ Se a expansão vier: cria-se `Clinic`, adiciona-se FK nas entidades sensíveis e
 
 Cada fase termina utilizável. Planos detalhados (com tarefas TDD passo a passo e divisão Claude/Codex) vivem em `docs/superpowers/plans/`.
 
-### Fase 1 — Fundação *(em execução)*
+### Fase 1 — Fundação *(concluída em 04/07/2026)*
 
 - [x] Scaffold Next.js + Tailwind v4 + Vitest; contratos compartilhados (tipos + Zod).
-- [ ] Schema Prisma completo + migração inicial (Prisma 7).
-- [ ] Seed do admin; importação TACO idempotente.
-- [ ] Auth.js v5: login, roles, middleware, troca de senha obrigatória.
-- [ ] Telas de login/troca de senha; shells `/admin` e `/app`.
+- [x] Schema Prisma completo + migração inicial (Prisma 7).
+- [x] Seed do admin; importação TACO idempotente (597 ingredientes).
+- [x] Auth.js v5: login, roles, proxy (Next 16), troca de senha obrigatória.
+- [x] Telas de login/troca de senha; shells `/admin` e `/app`.
 
-### Fase 2 — Admin Core
+### Fase 2 — Admin Core *(concluída em 04/07/2026)*
 
-- [ ] CRUD de ingredientes (busca, cadastro manual).
-- [ ] CRUD de receitas com composição por ingredientes e recálculo automático de macros.
-- [ ] Gestão de pacientes (cadastro, perfil, reset de senha, `dailyAiLimit`).
-- [ ] Editor de plano alimentar: metas diárias, refeições configuráveis, dieta base.
+- [x] CRUD de ingredientes (busca, cadastro manual).
+- [x] CRUD de receitas com composição por ingredientes e recálculo automático de macros (composer com totais ao vivo pela mesma função pura do servidor).
+- [x] Gestão de pacientes (cadastro com senha provisória, perfil, reset de senha, `dailyAiLimit`, desativação).
+- [x] Editor de plano alimentar: metas diárias, refeições configuráveis, dieta base, aviso de delta.
 
 ### Fase 3 — App do Paciente
 

@@ -12,7 +12,7 @@ App web para consultoria de nutrição (< 50 pacientes): equipe define planos al
 - Requisitos (canônico): `PRD.md` (raiz) — em divergência entre documentos, vale o PRD
 - Brief original: `PROJECT_BRIEF.md`
 - Design aprovado: `docs/superpowers/specs/2026-07-03-nutrition-app-design.md`
-- Plano da fase atual: `docs/superpowers/plans/2026-07-03-fase-1-fundacao.md`
+- Plano da fase mais recente (Fase 2, concluída): `docs/superpowers/plans/2026-07-04-fase-2-admin-core.md`
 
 ## Divisão de trabalho entre agentes
 
