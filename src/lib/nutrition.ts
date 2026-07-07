@@ -55,3 +55,22 @@ export function computeRecipeTotals(
     fatG: round1(total.fatG / servings),
   };
 }
+
+import type { DayBalance } from "./types";
+
+export function computeDayBalance(
+  targets: MacroTotals,
+  consumedList: MacroTotals[],
+): DayBalance {
+  const consumed = sumMacros(consumedList);
+  return {
+    targets,
+    consumed,
+    remaining: {
+      kcal: round1(targets.kcal - consumed.kcal),
+      proteinG: round1(targets.proteinG - consumed.proteinG),
+      carbsG: round1(targets.carbsG - consumed.carbsG),
+      fatG: round1(targets.fatG - consumed.fatG),
+    },
+  };
+}

@@ -56,3 +56,32 @@ describe("computeRecipeTotals", () => {
     expect(() => computeRecipeTotals([{ quantityG: 100, ingredient: arroz }], 0)).toThrow();
   });
 });
+
+import { computeDayBalance } from "./nutrition";
+
+describe("computeDayBalance", () => {
+  const targets = { kcal: 1800, proteinG: 130, carbsG: 180, fatG: 60 };
+
+  it("soma consumido e calcula restante", () => {
+    const balance = computeDayBalance(targets, [
+      { kcal: 418, proteinG: 22, carbsG: 51, fatG: 12 },
+      { kcal: 645, proteinG: 48, carbsG: 52, fatG: 18 },
+    ]);
+    expect(balance.consumed).toEqual({ kcal: 1063, proteinG: 70, carbsG: 103, fatG: 30 });
+    expect(balance.remaining).toEqual({ kcal: 737, proteinG: 60, carbsG: 77, fatG: 30 });
+  });
+
+  it("restante pode ficar negativo (estourou a meta)", () => {
+    const balance = computeDayBalance(targets, [
+      { kcal: 2000, proteinG: 100, carbsG: 200, fatG: 80 },
+    ]);
+    expect(balance.remaining.kcal).toBe(-200);
+    expect(balance.remaining.fatG).toBe(-20);
+  });
+
+  it("dia sem registros devolve as metas inteiras", () => {
+    const balance = computeDayBalance(targets, []);
+    expect(balance.remaining).toEqual(targets);
+    expect(balance.consumed).toEqual({ kcal: 0, proteinG: 0, carbsG: 0, fatG: 0 });
+  });
+});
