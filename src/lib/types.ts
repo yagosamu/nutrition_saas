@@ -52,3 +52,15 @@ export type IngredientMacros = {
   carbsGPer100g: number;
   fatGPer100g: number;
 };
+
+export type DayBalance = {
+  targets: MacroTotals;
+  consumed: MacroTotals;
+  remaining: MacroTotals; // pode ser negativo (estourou)
+};
+
+export const MEAL_LOG_TYPES = ["PLAN", "FREE_ENTRY"] as const;
+export type MealLogTypePhase3 = (typeof MEAL_LOG_TYPES)[number];
+
+export const PHOTO_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export type PhotoContentType = (typeof PHOTO_CONTENT_TYPES)[number];
