@@ -10,7 +10,9 @@
 
 **Executores:** `[CLAUDE]` = frontend/contratos (executor com contexto; especificação precisa + código dos trechos críticos). `[CODEX]` = backend (tarefas autocontidas: código completo, comandos, critérios de aceite; TDD sem pular passos).
 
-**Pré-requisito (usuário) — necessário só a partir da Task 4:** bucket R2 na Cloudflare:
+**Fotos adiadas (decisão do usuário, 05/07/2026):** o R2 e todas as fotos do diário (Task 4 + partes marcadas 📸 nas Tasks 8–9) ficam para depois. Toda a Fase 3 é construída e entregue **sem fotos**; a Task 4 e os trechos 📸 são executados quando o bucket estiver pronto — nenhum outro trabalho depende deles. O schema já tem `MealLogPhoto`, então adicionar fotos depois é aditivo, sem migração nem refatoração.
+
+**Pré-requisito (usuário) — SÓ quando for retomar as fotos:** bucket R2 na Cloudflare:
 1. Dashboard Cloudflare → R2 → Create bucket → nome `nutrition-media` (região automática).
 2. R2 → Manage API Tokens → Create API Token → permissão **Object Read & Write** restrita a esse bucket.
 3. Adicionar ao `.env` (e espelhar no `.env.example` com placeholders):
@@ -882,7 +884,9 @@ git commit -m "feat: registro de refeicoes com snapshot imutavel e saldo do dia 
 
 ---
 
-### Task 4: Storage R2 — fotos do diário (TDD na parte pura) — [CODEX]
+### Task 4: Storage R2 — fotos do diário (TDD na parte pura) — [CODEX] — ⏸️ ADIADA
+
+> **Não execute agora.** Esta task só roda quando o usuário criar o bucket R2 e preencher as variáveis no `.env` (ver "Fotos adiadas" no topo). As demais tasks da fase são construídas sem ela. Quando retomada, seguem-se os trechos marcados 📸 nas Tasks 8 e 9.
 
 **Pré-requisito:** variáveis R2 no `.env` (ver topo do plano). Se ausentes, PARE e reporte.
 
@@ -1180,27 +1184,27 @@ Depende das Tasks 2, 3, 6. A tela-assinatura do produto (protótipo aprovado com
 
 ---
 
-### Task 8: Detalhe da refeição — registro completo + fotos — [CLAUDE]
+### Task 8: Detalhe da refeição — registro completo (+ fotos 📸 adiadas) — [CLAUDE]
 
-Depende das Tasks 3, 4, 7.
+Depende das Tasks 3, 7. O passo de fotos (Step 3, 📸) depende também da Task 4 e é feito só quando o R2 estiver pronto.
 
 **Files:**
 - Create: `src/app/app/meals/[slotId]/page.tsx`
 - Create: `src/app/app/meals/[slotId]/meal-actions.tsx` (client)
-- Create: `src/app/app/meals/[slotId]/photo-uploader.tsx` (client)
+- Create: `src/app/app/meals/[slotId]/photo-uploader.tsx` (client) — 📸 só com a Task 4
 
 **Especificação:**
 
 - [ ] **Step 1:** Server Component (dia = hoje): valida sessão + slot via `getPatientDay` (achar o slot; inexistente → `notFound()`). Layout em camadas do design system: header com voltar, nome da refeição, meta; lista da dieta base (item + detalhe + macros); estado do registro atual.
 - [ ] **Step 2:** `meal-actions.tsx`: três caminhos — "Registrar como planejado" (com campo notas opcional), "Registro livre" (form: descrição, kcal, P, C, G, notas — aviso "estimativa sua, marcada como registro livre"), "Pular refeição". Registrado: mostrar resumo + "Desfazer". Tudo com pending/erro visíveis.
-- [ ] **Step 3:** `photo-uploader.tsx` (só quando há registro de hoje): input file (accept dos 3 content-types) → `requestPhotoUploadAction` → `fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } })` → `attachPhotoAction` → refresh. Estados: enviando/erro/limite (3). Fotos existentes exibidas via URLs de `viewUrlsForKeys` (server component passa as URLs prontas).
-- [ ] **Step 4:** Verificação manual: registrar livre com foto; conferir foto renderizada (URL assinada), limite de 3, desfazer. Build verde. Commit: `feat: detalhe da refeicao com registro completo e fotos`
+- [ ] **Step 3 — 📸 ADIADO (só após a Task 4):** `photo-uploader.tsx` (só quando há registro de hoje): input file (accept dos 3 content-types) → `requestPhotoUploadAction` → `fetch(uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } })` → `attachPhotoAction` → refresh. Estados: enviando/erro/limite (3). Fotos existentes exibidas via URLs de `viewUrlsForKeys` (server component passa as URLs prontas). **Enquanto o R2 não existe, não crie este componente** — a página funciona sem ele.
+- [ ] **Step 4:** Verificação manual: registrar como planejado; registro livre com estimativa; pular; desfazer — tudo sem fotos. (Quando a Task 4 entrar: refazer conferindo upload de foto, URL assinada, limite de 3.) Build verde. Commit: `feat: detalhe da refeicao com registro completo`
 
 ---
 
 ### Task 9: Diário histórico — [CLAUDE]
 
-Depende das Tasks 3, 4, 8.
+Depende das Tasks 3, 8. Miniaturas de fotos (📸) só aparecem depois da Task 4.
 
 **Files:**
 - Create: `src/app/app/diary/page.tsx`
@@ -1208,8 +1212,8 @@ Depende das Tasks 3, 4, 8.
 
 **Especificação:**
 
-- [ ] **Step 1:** `patient-diary.ts`: `getPatientDiary(patientId, days = 14)` → lista de dias (desc) com logs (slot name, status, type, consumed, freeDescription, notes, photoKeys) + dayNote + total consumido do dia. Reutilizar `viewUrlsForKeys` para fotos na página.
-- [ ] **Step 2:** Página: agrupada por dia (data por extenso; "Hoje"/"Ontem" quando aplicável); cada dia: total kcal + refeições com badges de status e tipo ("registro livre"), miniaturas de fotos, notas. Dias passados são read-only (sem botões de ação).
+- [ ] **Step 1:** `patient-diary.ts`: `getPatientDiary(patientId, days = 14)` → lista de dias (desc) com logs (slot name, status, type, consumed, freeDescription, notes, photoKeys) + dayNote + total consumido do dia. (`photoKeys` já vem do schema; renderização das fotos é 📸.)
+- [ ] **Step 2:** Página: agrupada por dia (data por extenso; "Hoje"/"Ontem" quando aplicável); cada dia: total kcal + refeições com badges de status e tipo ("registro livre"), notas. **📸 (após Task 4):** miniaturas de fotos via `viewUrlsForKeys`. Dias passados são read-only (sem botões de ação).
 - [ ] **Step 3:** Verificação manual + build. Commit: `feat: diario historico do paciente`
 
 ---
@@ -1220,7 +1224,7 @@ Depende das Tasks 3, 4, 8.
 - [ ] **Step 2:** Fluxo ponta a ponta no dev server em 390px, logado como paciente de teste:
   1. Hoje: saldo zerado com metas do plano da Fase 2.
   2. Registrar almoço "como planejado" → saldo desconta a dieta base.
-  3. Registro livre no jantar com foto → snapshot com números do paciente + foto visível.
+  3. Registro livre no jantar → snapshot com números do paciente (marcado como estimativa). *(Foto: só após a Task 4.)*
   4. Pular lanche → badge, sem efeito no saldo.
   5. Desfazer o almoço → saldo volta.
   6. Nota do dia salva e reaparece.
@@ -1234,17 +1238,23 @@ Depende das Tasks 3, 4, 8.
 ## Ordem de execução e paralelismo
 
 ```
-Task 1 (CLAUDE) → Task 2 (CODEX) → Task 3 (CODEX) → Task 4 (CODEX, requer env R2)
-Task 5 (CLAUDE) — paralela às Tasks 2–4 (não compartilha arquivos)
-Task 6 → 7 → 8 → 9 (CLAUDE, após 3–4) → Task 10 fecha
+Task 1 (CLAUDE) → Task 2 (CODEX) → Task 3 (CODEX)
+Task 5 (CLAUDE) — paralela às Tasks 2–3 (não compartilha arquivos)
+Task 6 → 7 → 8 (sem 📸) → 9 (sem 📸) (CLAUDE, após Task 3) → Task 10 fecha a fase SEM fotos
+─── quando o R2 estiver pronto ───
+Task 4 (CODEX) → trechos 📸 das Tasks 8 e 9 (CLAUDE) → reverificar
 ```
 
-## Definition of Done da Fase 3
+## Definition of Done da Fase 3 (sem fotos)
 
 - [ ] `npm run test` e `npm run build` verdes.
 - [ ] Snapshot de refeição nunca muda depois de registrado; edição/desfazer só no dia corrente (SP).
 - [ ] Saldo do dia = função pura sobre snapshots; barras refletem estourado.
 - [ ] Registro livre visivelmente marcado como estimativa do paciente.
-- [ ] Fotos: bucket privado, URLs assinadas curtas, namespace por paciente, cross-access não vaza existência, máx. 3 por refeição.
 - [ ] `/app` inteiro na identidade da marca (nada de emerald); `/design-system` disponível em dev e bloqueada em produção.
 - [ ] Paciente não acessa nada de outro paciente; admin continua intocado.
+
+## Definition of Done das fotos (add-on, quando o R2 estiver pronto)
+
+- [ ] Task 4 + trechos 📸 das Tasks 8–9 executados.
+- [ ] Fotos: bucket privado, URLs assinadas curtas, namespace por paciente, cross-access não vaza existência, máx. 3 por refeição, credenciais nunca no client.
