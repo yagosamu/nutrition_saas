@@ -7,12 +7,20 @@ export default async function ChangePasswordPage() {
   if (!session?.user) redirect("/login");
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-center text-xl font-semibold text-zinc-900">
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-cream-100 px-4">
+      <div className="mb-8 text-center">
+        <p className="font-display text-lg font-semibold tracking-[0.18em] text-ink-900">
+          MANUELA GIGLIO
+        </p>
+        <p className="mt-1 text-[10px] uppercase tracking-[0.24em] text-caramel-500">
+          Nutricionista
+        </p>
+      </div>
+      <div className="w-full max-w-sm rounded-3xl border border-line-200 bg-cream-50 p-8">
+        <h1 className="mb-2 text-center font-display text-xl font-semibold text-ink-900">
           Alterar senha
         </h1>
-        <p className="mb-6 text-center text-sm text-zinc-500">
+        <p className="mb-6 text-center text-sm text-ink-500">
           {session.user.mustChangePassword
             ? "Por segurança, defina uma nova senha antes de continuar."
             : "Defina sua nova senha."}

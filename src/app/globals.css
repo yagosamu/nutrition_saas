@@ -14,10 +14,38 @@
   --color-ink-500: #6e6354;
   --color-ink-300: #93876f;
   --color-charcoal-900: #241d17;
+  --color-charcoal-700: #332a21;
   --color-line-200: #e6dac4;
+
+  /* Semânticas de sistema (verde só em micro-elementos, nunca superfícies) */
+  --color-success-600: #4c7a3f;
+  --color-success-100: #e8f0e2;
+  --color-danger-600: #b3402e;
+  --color-danger-100: #f7e5e1;
 
   --font-display: var(--font-manrope);
   --font-body: var(--font-inter);
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 body {

@@ -3,18 +3,18 @@
 import { useActionState } from "react";
 import { changePasswordAction, type ActionState } from "../actions";
 
+const inputClass =
+  "rounded-xl border border-line-200 bg-cream-50 px-4 py-3 text-base focus:border-brand-500 focus:outline-none";
+
 export function ChangePasswordForm() {
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
     changePasswordAction,
     undefined,
   );
 
-  const inputClass =
-    "rounded-lg border border-zinc-300 px-3 py-2 text-base focus:border-emerald-600 focus:outline-none";
-
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className="flex flex-col gap-1 text-sm font-medium text-ink-900">
         Senha atual
         <input
           type="password"
@@ -24,7 +24,7 @@ export function ChangePasswordForm() {
           className={inputClass}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className="flex flex-col gap-1 text-sm font-medium text-ink-900">
         Nova senha
         <input
           type="password"
@@ -35,7 +35,7 @@ export function ChangePasswordForm() {
           className={inputClass}
         />
       </label>
-      <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700">
+      <label className="flex flex-col gap-1 text-sm font-medium text-ink-900">
         Confirmar nova senha
         <input
           type="password"
@@ -45,13 +45,13 @@ export function ChangePasswordForm() {
           className={inputClass}
         />
       </label>
-      {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
+      {state?.error && <p className="text-sm text-danger-600">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-lg bg-emerald-700 px-4 py-2.5 font-medium text-white transition hover:bg-emerald-800 disabled:opacity-50"
+        className="mt-2 rounded-full bg-brand-500 px-4 py-3 font-semibold text-cream-50 transition hover:bg-brand-600 disabled:opacity-50"
       >
-        {pending ? "Salvando..." : "Alterar senha"}
+        {pending ? "Salvando…" : "Alterar senha"}
       </button>
     </form>
   );
