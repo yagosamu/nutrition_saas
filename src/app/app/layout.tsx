@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/server/auth";
-import { logoutAction } from "../(auth)/actions";
+import { BottomNav } from "./bottom-nav";
 
 export default async function PatientLayout({
   children,
@@ -13,19 +13,9 @@ export default async function PatientLayout({
   if (session.user.mustChangePassword) redirect("/change-password");
 
   return (
-    <div className="min-h-dvh bg-zinc-50">
-      <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3">
-        <span className="font-semibold text-emerald-800">Meu plano</span>
-        <form action={logoutAction}>
-          <button
-            type="submit"
-            className="text-sm text-zinc-500 underline hover:text-zinc-900"
-          >
-            Sair
-          </button>
-        </form>
-      </header>
-      <main className="p-4">{children}</main>
+    <div className="min-h-dvh bg-cream-100">
+      <main className="mx-auto max-w-md px-4 pb-28 pt-6">{children}</main>
+      <BottomNav />
     </div>
   );
 }
