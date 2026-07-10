@@ -450,12 +450,14 @@ Cada fase termina utilizável. Planos detalhados (com tarefas TDD passo a passo 
 - [x] Gestão de pacientes (cadastro com senha provisória, perfil, reset de senha, `dailyAiLimit`, desativação).
 - [x] Editor de plano alimentar: metas diárias, refeições configuráveis, dieta base, aviso de delta.
 
-### Fase 3 — App do Paciente
+### Fase 3 — App do Paciente *(concluída em 10/07/2026, exceto fotos)*
 
-- [ ] "Hoje": refeições do dia + saldo de kcal/macros (serviço de saldo com TDD).
-- [ ] Registro por refeição (plano, livre, pulada) com snapshot imutável.
-- [ ] Fotos (R2 com URLs pré-assinadas) e observações por refeição/dia.
-- [ ] Visualização da dieta base; diário histórico.
+- [x] Design system `/design-system` (dev-only) + re-skin das telas de auth na identidade da marca.
+- [x] "Hoje": refeições do dia + saldo de kcal/macros (serviço de saldo com TDD).
+- [x] Registro por refeição (plano, livre, pulada) com snapshot imutável e edição só no dia corrente (SP).
+- [x] Observações por refeição e por dia.
+- [ ] **Fotos (R2 com URLs pré-assinadas) — adiadas por decisão do usuário**: entram como add-on quando o bucket R2 for criado (Task 4 + trechos 📸 do plano da fase).
+- [x] Visualização da dieta base (Meu plano); diário histórico (14 dias).
 
 ### Fase 4 — Camada de IA
 
