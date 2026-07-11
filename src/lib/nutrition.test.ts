@@ -85,3 +85,59 @@ describe("computeDayBalance", () => {
     expect(balance.consumed).toEqual({ kcal: 0, proteinG: 0, carbsG: 0, fatG: 0 });
   });
 });
+
+import { fitPortionToTarget, computeExternalVerdict, TOLERANCES } from "./nutrition";
+
+describe("fitPortionToTarget", () => {
+  const targets = { kcal: 650, proteinG: 45, carbsG: 70, fatG: 20 };
+
+  it("encontra fator em passos de 0,25 que cabe na tolerância", () => {
+    const perServing = { kcal: 516, proteinG: 38.4, carbsG: 41.6, fatG: 14.4 };
+    const fit = fitPortionToTarget(targets, perServing);
+    // 650/516 = 1.26 → 1.25; kcal 645 (dentro de ±5%), macros dentro de ±10%
+    expect(fit.factor).toBe(1.25);
+    expect(fit.fits).toBe(true);
+    expect(fit.macros.kcal).toBe(645);
+  });
+
+  it("clampa o fator ao intervalo [0.5, 2]", () => {
+    const tiny = { kcal: 100, proteinG: 5, carbsG: 10, fatG: 3 };
+    const fit = fitPortionToTarget(targets, tiny);
+    expect(fit.factor).toBe(2);
+    expect(fit.fits).toBe(false); // 200 kcal está longe de 650
+  });
+
+  it("macro com meta 0 é ignorada na checagem", () => {
+    const zeroCarbTarget = { kcal: 400, proteinG: 30, carbsG: 0, fatG: 15 };
+    const perServing = { kcal: 400, proteinG: 30, carbsG: 12, fatG: 15 };
+    expect(fitPortionToTarget(zeroCarbTarget, perServing).fits).toBe(true);
+  });
+
+  it("kcal por porção <= 0 não cabe", () => {
+    const fit = fitPortionToTarget(targets, { kcal: 0, proteinG: 0, carbsG: 0, fatG: 0 });
+    expect(fit.fits).toBe(false);
+  });
+});
+
+describe("computeExternalVerdict", () => {
+  const targets = { kcal: 650, proteinG: 45, carbsG: 70, fatG: 20 };
+
+  it("FITS quando cabe praticamente inteira (fator ~1)", () => {
+    const v = computeExternalVerdict(targets, { kcal: 640, proteinG: 44, carbsG: 68, fatG: 21 });
+    expect(v.verdict).toBe("FITS");
+    expect(v.factor).toBe(1);
+  });
+
+  it("FITS_WITH_PORTION quando cabe com fator diferente de 1", () => {
+    const v = computeExternalVerdict(targets, { kcal: 860, proteinG: 60, carbsG: 92, fatG: 26 });
+    expect(v.verdict).toBe("FITS_WITH_PORTION");
+    expect(v.factor).toBe(0.75);
+  });
+
+  it("DOES_NOT_FIT com o motivo do macro que estoura", () => {
+    // gordura desproporcional: em nenhum fator os dois cabem
+    const v = computeExternalVerdict(targets, { kcal: 650, proteinG: 10, carbsG: 20, fatG: 55 });
+    expect(v.verdict).toBe("DOES_NOT_FIT");
+    expect(v.reason).toContain("gordura");
+  });
+});

@@ -74,3 +74,91 @@ export function computeDayBalance(
     },
   };
 }
+
+// Tolerâncias do produto (design doc): kcal ±5%, macros ±10% (relativas à meta).
+export const TOLERANCES = { kcalPct: 0.05, macroPct: 0.1 } as const;
+
+export type PortionFit = {
+  factor: number;
+  macros: MacroTotals;
+  fits: boolean;
+};
+
+function withinTolerance(value: number, target: number, pct: number): boolean {
+  if (target <= 0) return true; // meta 0 = não avaliada
+  return Math.abs(value - target) <= target * pct;
+}
+
+function fitsTargets(macros: MacroTotals, targets: MacroTotals): boolean {
+  return (
+    withinTolerance(macros.kcal, targets.kcal, TOLERANCES.kcalPct) &&
+    withinMacroCeiling(macros.proteinG, targets.proteinG) &&
+    withinMacroCeiling(macros.carbsG, targets.carbsG) &&
+    withinMacroCeiling(macros.fatG, targets.fatG)
+  );
+}
+
+function withinMacroCeiling(value: number, target: number): boolean {
+  if (target <= 0) return true; // meta 0 = não avaliada
+  return value <= target * (1 + TOLERANCES.macroPct);
+}
+
+/**
+ * Encontra o fator de porção (passos de 0,25 em [0,5, 2]) que melhor aproxima
+ * a meta de kcal e verifica as tolerâncias. Determinístico — nunca LLM.
+ */
+export function fitPortionToTarget(
+  targets: MacroTotals,
+  perServing: MacroTotals,
+): PortionFit {
+  if (perServing.kcal <= 0 || targets.kcal <= 0) {
+    return { factor: 1, macros: scaleServing(perServing, 1), fits: false };
+  }
+  const raw = targets.kcal / perServing.kcal;
+  const clamped = Math.min(2, Math.max(0.5, raw));
+  const factor = Math.round(clamped * 4) / 4;
+  const macros = scaleServing(perServing, factor);
+  return { factor, macros, fits: fitsTargets(macros, targets) };
+}
+
+export type ExternalVerdict = {
+  verdict: "FITS" | "FITS_WITH_PORTION" | "DOES_NOT_FIT";
+  factor: number;
+  macros: MacroTotals;
+  reason: string | null;
+};
+
+const MACRO_LABELS: [keyof MacroTotals, string][] = [
+  ["kcal", "as calorias"],
+  ["proteinG", "a proteína"],
+  ["carbsG", "o carboidrato"],
+  ["fatG", "a gordura"],
+];
+
+export function computeExternalVerdict(
+  targets: MacroTotals,
+  perServing: MacroTotals,
+): ExternalVerdict {
+  const fit = fitPortionToTarget(targets, perServing);
+  if (fit.fits) {
+    return {
+      verdict: fit.factor === 1 ? "FITS" : "FITS_WITH_PORTION",
+      factor: fit.factor,
+      macros: fit.macros,
+      reason: null,
+    };
+  }
+  const offender = MACRO_LABELS.find(([key]) =>
+    key === "kcal"
+      ? !withinTolerance(fit.macros[key], targets[key], TOLERANCES.kcalPct)
+      : !withinMacroCeiling(fit.macros[key], targets[key]),
+  );
+  const label = offender?.[1] ?? "as metas";
+  const over = offender ? fit.macros[offender[0]] > targets[offender[0]] : true;
+  return {
+    verdict: "DOES_NOT_FIT",
+    factor: fit.factor,
+    macros: fit.macros,
+    reason: `Mesmo na melhor porção, ${label} fica${over ? "m acima" : "m abaixo"} da meta desta refeição`,
+  };
+}
