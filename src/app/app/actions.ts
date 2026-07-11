@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import type { ActionResult } from "@/lib/types";
+import { registerExternalSchema, registerSuggestionSchema } from "@/lib/validation/ai";
 import {
   diaryNoteSchema,
   registerFreeMealSchema,
@@ -11,8 +12,12 @@ import {
 import { requirePatient } from "@/server/auth/guards";
 import {
   productionMealLogDeps,
+  productionExternalLookupDeps,
+  productionSuggestionLookupDeps,
+  registerExternalMealWith,
   registerFreeMealWith,
   registerPlanMealWith,
+  registerSuggestionMealWith,
   saveDiaryNote,
   skipMealWith,
   undoMealWith,
@@ -71,4 +76,34 @@ export async function saveDiaryNoteAction(payload: unknown): Promise<ActionResul
   await saveDiaryNote(patient.id, parsed.data.date, parsed.data.text);
   revalidateApp();
   return { ok: true, data: undefined };
+}
+
+export async function registerSuggestionMealAction(payload: unknown): Promise<ActionResult<{ id: string }>> {
+  const patient = await requirePatient();
+  if (!patient) return { ok: false, error: "Sem permissão" };
+  const parsed = registerSuggestionSchema.safeParse(payload);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  const result = await registerSuggestionMealWith(
+    productionMealLogDeps(),
+    productionSuggestionLookupDeps(),
+    patient.id,
+    parsed.data,
+  );
+  if (result.ok) revalidateApp();
+  return result;
+}
+
+export async function registerExternalMealAction(payload: unknown): Promise<ActionResult<{ id: string }>> {
+  const patient = await requirePatient();
+  if (!patient) return { ok: false, error: "Sem permissão" };
+  const parsed = registerExternalSchema.safeParse(payload);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  const result = await registerExternalMealWith(
+    productionMealLogDeps(),
+    productionExternalLookupDeps(),
+    patient.id,
+    parsed.data,
+  );
+  if (result.ok) revalidateApp();
+  return result;
 }

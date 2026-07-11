@@ -106,3 +106,108 @@ describe("undoMealWith", () => {
     expect(result).toEqual({ ok: false, error: "Só é possível editar o dia de hoje" });
   });
 });
+
+import { registerSuggestionMealWith, registerExternalMealWith, type SuggestionLookupDeps } from "./meal-logs";
+
+describe("registerSuggestionMealWith", () => {
+  const suggestion = {
+    id: "sug1",
+    mealSlotId: "s1",
+    recipeId: "r1",
+    portionFactor: 1.25,
+    macros: { kcal: 645, proteinG: 48, carbsG: 52, fatG: 18 },
+    dateStr: TODAY,
+  };
+  const lookup: SuggestionLookupDeps = { getSuggestionForPatient: async () => suggestion };
+
+  it("congela o snapshot da sugestão (calculado pelo sistema) como AI_SUGGESTION", async () => {
+    const { deps, upserts } = makeDeps();
+    const result = await registerSuggestionMealWith(deps, lookup, "p1", {
+      suggestionId: "sug1",
+      date: TODAY,
+      notes: null,
+    });
+    expect(result.ok).toBe(true);
+    expect(upserts[0]).toMatchObject({
+      type: "AI_SUGGESTION",
+      recipeId: "r1",
+      portionFactor: 1.25,
+      kcal: 645,
+      proteinG: 48,
+    });
+  });
+
+  it("recusa sugestão de outro paciente/dia", async () => {
+    const { deps } = makeDeps();
+    const result = await registerSuggestionMealWith(
+      deps,
+      { getSuggestionForPatient: async () => null },
+      "p1",
+      { suggestionId: "sug1", date: TODAY, notes: null },
+    );
+    expect(result).toEqual({ ok: false, error: "Sugestão não encontrada" });
+  });
+});
+
+describe("registerExternalMealWith", () => {
+  it("registra EXTERNAL_RECIPE com os macros do veredito e cria a receita pendente", async () => {
+    const { deps, upserts } = makeDeps();
+    const created: unknown[] = [];
+    const result = await registerExternalMealWith(
+      deps,
+      {
+        getEvaluationForPatient: async () => ({
+          mealSlotId: "s1",
+          verdict: "FITS_WITH_PORTION",
+          factor: 0.75,
+          reason: null,
+          macros: { kcal: 640, proteinG: 44, carbsG: 66, fatG: 19 },
+          recipeName: "Bolo fit",
+          servings: 8,
+          mappedIngredients: [{ ingredientId: "i1", name: "Aveia", quantityG: 100 }],
+          unmappedIngredients: [],
+        }),
+        createExternalRecipe: async (data) => {
+          created.push(data);
+          return { id: "r-ext" };
+        },
+      },
+      "p1",
+      { aiJobId: "job1", date: TODAY, notes: null },
+    );
+    expect(result.ok).toBe(true);
+    expect(created).toHaveLength(1);
+    expect(upserts[0]).toMatchObject({
+      type: "EXTERNAL_RECIPE",
+      recipeId: "r-ext",
+      portionFactor: 0.75,
+      kcal: 640,
+    });
+  });
+
+  it("recusa quando o veredito é DOES_NOT_FIT", async () => {
+    const { deps } = makeDeps();
+    const result = await registerExternalMealWith(
+      deps,
+      {
+        getEvaluationForPatient: async () => ({
+          mealSlotId: "s1",
+          verdict: "DOES_NOT_FIT",
+          factor: 1,
+          reason: "A gordura fica acima da meta desta refeição",
+          macros: { kcal: 900, proteinG: 20, carbsG: 80, fatG: 50 },
+          recipeName: "X",
+          servings: 1,
+          mappedIngredients: [],
+          unmappedIngredients: [],
+        }),
+        createExternalRecipe: async () => {
+          throw new Error("não deve criar");
+        },
+      },
+      "p1",
+      { aiJobId: "job1", date: TODAY, notes: null },
+    );
+    expect(result.ok).toBe(false);
+  });
+});

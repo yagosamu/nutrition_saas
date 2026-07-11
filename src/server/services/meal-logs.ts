@@ -1,7 +1,8 @@
-import { scalePer100, scaleServing, sumMacros } from "@/lib/nutrition";
+import { computeRecipeTotals, scalePer100, scaleServing, sumMacros } from "@/lib/nutrition";
 import { utcDateFromDateString } from "@/lib/dates";
 import { todayInSaoPaulo } from "@/lib/dates";
-import type { ActionResult, MacroTotals } from "@/lib/types";
+import type { ActionResult, ExternalEvaluationResult, MacroTotals } from "@/lib/types";
+import { z } from "zod";
 import type {
   RegisterFreeMealData,
   RegisterPlanMealData,
@@ -14,7 +15,9 @@ export type MealLogUpsertData = {
   mealSlotId: string;
   date: string; // YYYY-MM-DD
   status: "COMPLETED" | "SKIPPED";
-  type: "PLAN" | "FREE_ENTRY" | null;
+  type: "PLAN" | "FREE_ENTRY" | "AI_SUGGESTION" | "EXTERNAL_RECIPE" | null;
+  recipeId?: string | null;
+  portionFactor?: number | null;
   freeDescription: string | null;
   notes: string | null;
   kcal: number;
@@ -197,6 +200,8 @@ export function productionMealLogDeps(): MealLogDeps {
         update: {
           status: data.status,
           type: data.type,
+          recipeId: data.recipeId ?? null,
+          portionFactor: data.portionFactor ?? null,
           freeDescription: data.freeDescription,
           notes: data.notes,
           kcal: data.kcal,
@@ -210,6 +215,8 @@ export function productionMealLogDeps(): MealLogDeps {
           date,
           status: data.status,
           type: data.type,
+          recipeId: data.recipeId ?? null,
+          portionFactor: data.portionFactor ?? null,
           freeDescription: data.freeDescription,
           notes: data.notes,
           kcal: data.kcal,
@@ -246,4 +253,235 @@ export async function saveDiaryNote(patientId: string, date: string, text: strin
     update: { text: text.trim() },
     create: { patientId, date: day, text: text.trim() },
   });
+}
+
+export type MealSuggestionSnapshot = {
+  id: string;
+  mealSlotId: string;
+  recipeId: string;
+  portionFactor: number;
+  macros: MacroTotals;
+  dateStr: string;
+};
+
+export type SuggestionLookupDeps = {
+  getSuggestionForPatient: (
+    suggestionId: string,
+    patientId: string,
+  ) => Promise<MealSuggestionSnapshot | null>;
+};
+
+export type RegisterSuggestionMealData = {
+  suggestionId: string;
+  date: string;
+  notes: string | null;
+};
+
+export async function registerSuggestionMealWith(
+  deps: MealLogDeps,
+  lookup: SuggestionLookupDeps,
+  patientId: string,
+  input: RegisterSuggestionMealData,
+): Promise<ActionResult<{ id: string }>> {
+  if (input.date !== deps.today()) {
+    return { ok: false, error: "Só é possível registrar o dia de hoje" };
+  }
+  const suggestion = await lookup.getSuggestionForPatient(input.suggestionId, patientId);
+  if (!suggestion || suggestion.dateStr !== input.date) {
+    return { ok: false, error: "Sugestão não encontrada" };
+  }
+  const slot = await requireOwnedSlot(deps, suggestion.mealSlotId, patientId);
+  if (!slot) return { ok: false, error: "Refeição não encontrada no seu plano" };
+
+  const saved = await deps.upsertLog({
+    patientId,
+    mealSlotId: suggestion.mealSlotId,
+    date: input.date,
+    status: "COMPLETED",
+    type: "AI_SUGGESTION",
+    recipeId: suggestion.recipeId,
+    portionFactor: suggestion.portionFactor,
+    freeDescription: null,
+    notes: input.notes,
+    kcal: suggestion.macros.kcal,
+    proteinG: suggestion.macros.proteinG,
+    carbsG: suggestion.macros.carbsG,
+    fatG: suggestion.macros.fatG,
+  });
+  return { ok: true, data: { id: saved.id } };
+}
+
+export type ExternalEvaluationSnapshot = ExternalEvaluationResult & { mealSlotId: string };
+
+export type ExternalRecipeCreateData = ExternalEvaluationSnapshot & {
+  patientId: string;
+};
+
+export type ExternalLookupDeps = {
+  getEvaluationForPatient: (
+    aiJobId: string,
+    patientId: string,
+  ) => Promise<ExternalEvaluationSnapshot | null>;
+  createExternalRecipe: (data: ExternalRecipeCreateData) => Promise<{ id: string }>;
+};
+
+export type RegisterExternalMealData = {
+  aiJobId: string;
+  date: string;
+  notes: string | null;
+};
+
+export async function registerExternalMealWith(
+  deps: MealLogDeps,
+  lookup: ExternalLookupDeps,
+  patientId: string,
+  input: RegisterExternalMealData,
+): Promise<ActionResult<{ id: string }>> {
+  if (input.date !== deps.today()) {
+    return { ok: false, error: "Só é possível registrar o dia de hoje" };
+  }
+  const evaluation = await lookup.getEvaluationForPatient(input.aiJobId, patientId);
+  if (!evaluation) return { ok: false, error: "Avaliação não encontrada" };
+  if (evaluation.verdict === "DOES_NOT_FIT") {
+    return { ok: false, error: "Essa receita não cabe nesta refeição" };
+  }
+  const slot = await requireOwnedSlot(deps, evaluation.mealSlotId, patientId);
+  if (!slot) return { ok: false, error: "Refeição não encontrada no seu plano" };
+
+  const recipe = await lookup.createExternalRecipe({ ...evaluation, patientId });
+  const saved = await deps.upsertLog({
+    patientId,
+    mealSlotId: evaluation.mealSlotId,
+    date: input.date,
+    status: "COMPLETED",
+    type: "EXTERNAL_RECIPE",
+    recipeId: recipe.id,
+    portionFactor: evaluation.factor,
+    freeDescription: null,
+    notes: input.notes,
+    kcal: evaluation.macros.kcal,
+    proteinG: evaluation.macros.proteinG,
+    carbsG: evaluation.macros.carbsG,
+    fatG: evaluation.macros.fatG,
+  });
+  return { ok: true, data: { id: saved.id } };
+}
+
+export function productionSuggestionLookupDeps(): SuggestionLookupDeps {
+  return {
+    getSuggestionForPatient: async (suggestionId, patientId) => {
+      const suggestion = await prisma.mealSuggestion.findFirst({
+        where: { id: suggestionId, patientId },
+        select: {
+          id: true,
+          mealSlotId: true,
+          recipeId: true,
+          portionFactor: true,
+          kcal: true,
+          proteinG: true,
+          carbsG: true,
+          fatG: true,
+          date: true,
+        },
+      });
+      if (!suggestion) return null;
+      return {
+        id: suggestion.id,
+        mealSlotId: suggestion.mealSlotId,
+        recipeId: suggestion.recipeId,
+        portionFactor: suggestion.portionFactor,
+        macros: {
+          kcal: suggestion.kcal,
+          proteinG: suggestion.proteinG,
+          carbsG: suggestion.carbsG,
+          fatG: suggestion.fatG,
+        },
+        dateStr: suggestion.date.toISOString().slice(0, 10),
+      };
+    },
+  };
+}
+
+const externalEvaluationSchema = z.object({
+  mealSlotId: z.string(),
+  verdict: z.enum(["FITS", "FITS_WITH_PORTION", "DOES_NOT_FIT"]),
+  factor: z.number(),
+  macros: z.object({
+    kcal: z.number(),
+    proteinG: z.number(),
+    carbsG: z.number(),
+    fatG: z.number(),
+  }),
+  reason: z.string().nullable(),
+  recipeName: z.string(),
+  servings: z.number(),
+  mappedIngredients: z.array(
+    z.object({ ingredientId: z.string(), name: z.string(), quantityG: z.number() }),
+  ),
+  unmappedIngredients: z.array(z.string()),
+});
+
+export function productionExternalLookupDeps(): ExternalLookupDeps {
+  return {
+    getEvaluationForPatient: async (aiJobId, patientId) => {
+      const job = await prisma.aiJob.findFirst({
+        where: { id: aiJobId, patientId, type: "EVALUATE_EXTERNAL", status: "COMPLETED" },
+        select: { result: true },
+      });
+      const parsed = externalEvaluationSchema.safeParse(job?.result);
+      return parsed.success ? parsed.data : null;
+    },
+    createExternalRecipe: async (data) => {
+      const slot = await prisma.mealSlot.findFirst({
+        where: { id: data.mealSlotId, mealPlan: { patientId: data.patientId, active: true } },
+        select: { mealType: true },
+      });
+      if (!slot) throw new Error("Refeição não encontrada no seu plano");
+
+      const ingredients = await prisma.ingredient.findMany({
+        where: { id: { in: data.mappedIngredients.map((i) => i.ingredientId) } },
+        select: {
+          id: true,
+          kcalPer100g: true,
+          proteinGPer100g: true,
+          carbsGPer100g: true,
+          fatGPer100g: true,
+        },
+      });
+      const byId = new Map(ingredients.map((i) => [i.id, i]));
+      const recipeItems = data.mappedIngredients
+        .map((item) => {
+          const ingredient = byId.get(item.ingredientId);
+          return ingredient ? { quantityG: item.quantityG, ingredient } : null;
+        })
+        .filter((item): item is { quantityG: number; ingredient: (typeof ingredients)[number] } => item != null);
+      if (recipeItems.length === 0) throw new Error("Receita sem ingredientes reconhecidos");
+
+      const totals = computeRecipeTotals(recipeItems, data.servings);
+      return prisma.recipe.create({
+        data: {
+          name: data.recipeName,
+          instructions: `Receita externa avaliada pelo paciente. Ingredientes não mapeados: ${
+            data.unmappedIngredients.join(", ") || "nenhum"
+          }.`,
+          servings: data.servings,
+          suitableMealTypes: [slot.mealType],
+          status: "PENDING_REVIEW",
+          origin: "EXTERNAL",
+          patientId: data.patientId,
+          kcalPerServing: totals.kcal,
+          proteinGPerServing: totals.proteinG,
+          carbsGPerServing: totals.carbsG,
+          fatGPerServing: totals.fatG,
+          ingredients: {
+            create: data.mappedIngredients.map((item) => ({
+              ingredientId: item.ingredientId,
+              quantityG: item.quantityG,
+            })),
+          },
+        },
+        select: { id: true },
+      });
+    },
+  };
 }
