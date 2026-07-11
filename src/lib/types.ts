@@ -64,3 +64,36 @@ export type MealLogTypePhase3 = (typeof MEAL_LOG_TYPES)[number];
 
 export const PHOTO_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 export type PhotoContentType = (typeof PHOTO_CONTENT_TYPES)[number];
+
+export const AI_JOB_TYPES = ["SUGGEST", "GENERATE", "EVALUATE_EXTERNAL"] as const;
+export type AiJobTypeName = (typeof AI_JOB_TYPES)[number];
+
+export type AiJobStatusName = "PENDING" | "RUNNING" | "COMPLETED" | "FAILED";
+
+export type ExternalVerdictKind = "FITS" | "FITS_WITH_PORTION" | "DOES_NOT_FIT";
+
+// Resultado persistido em AiJob.result para EVALUATE_EXTERNAL
+export type ExternalEvaluationResult = {
+  verdict: ExternalVerdictKind;
+  factor: number; // fator de porção que melhor aproxima a meta
+  macros: MacroTotals; // macros na porção ajustada (fator aplicado)
+  reason: string | null; // por que não cabe (quando DOES_NOT_FIT)
+  recipeName: string;
+  servings: number;
+  mappedIngredients: { ingredientId: string; name: string; quantityG: number }[];
+  unmappedIngredients: string[]; // ressalvas — não entram na soma
+};
+
+// Resultado persistido em AiJob.result para SUGGEST
+export type SuggestResult = { suggestionCount: number };
+
+// Resultado persistido em AiJob.result para GENERATE
+export type GenerateResult = { recipeId: string; suggestionId: string };
+
+export type AiJobStatusView = {
+  id: string;
+  type: AiJobTypeName;
+  status: AiJobStatusName;
+  error: string | null;
+  result: unknown;
+};
