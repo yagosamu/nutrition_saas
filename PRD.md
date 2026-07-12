@@ -459,14 +459,16 @@ Cada fase termina utilizável. Planos detalhados (com tarefas TDD passo a passo 
 - [ ] **Fotos (R2 com URLs pré-assinadas) — adiadas por decisão do usuário**: entram como add-on quando o bucket R2 for criado (Task 4 + trechos 📸 do plano da fase).
 - [x] Visualização da dieta base (Meu plano); diário histórico (14 dias).
 
-### Fase 4 — Camada de IA
+### Fase 4 — Camada de IA *(concluída em 12/07/2026)*
 
-- [ ] Worker + fila pg-boss; `AiJob` como porta única de IA.
-- [ ] Fluxo de sugestões (pré-filtro SQL, escala determinística, ranqueamento, persistência).
-- [ ] Geração de receita nova com loop de validação.
-- [ ] Avaliação de receita externa (texto e link) com vereditos e ressalvas.
-- [ ] Curadoria no admin; limites de custo, prompt caching, modelos por tarefa.
-- [ ] UI assíncrona: estados de processamento, polling, erro com retry.
+- [x] Worker + fila pg-boss; `AiJob` como porta única de IA (tokens/custo auditados por job).
+- [x] Fluxo de sugestões (pré-filtro SQL, escala determinística `fitPortionToTarget`, ranqueamento Claude só de nomes/ids, persistência com snapshot do sistema).
+- [x] Geração de receita nova com loop de validação (verificado com API real: 649,4 kcal para meta de 650).
+- [x] Avaliação de receita externa (texto e link) com vereditos e ressalvas de não-mapeados.
+- [x] Curadoria no admin (aprovar/rejeitar `PENDING_REVIEW`); limites de custo, prompt caching (catálogo TACO cacheado), modelos por tarefa (`claude-sonnet-5` / `claude-haiku-4-5`).
+- [x] UI assíncrona: estados de processamento (shimmer), polling de 2 s, erro com retry, limite diário visível.
+
+*Nota de semântica (decisão na execução): tolerância de macros é teto (+10%) — estourar é proibido, ficar abaixo é permitido; kcal continua bidirecional (±5%), o que limita implicitamente quedas de macro.*
 
 ### Fase 5 — Acompanhamento e Gestão
 
