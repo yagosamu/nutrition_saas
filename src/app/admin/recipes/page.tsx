@@ -32,11 +32,14 @@ export default async function RecipesPage({
       : {}),
   };
 
-  const recipes = await prisma.recipe.findMany({
-    where,
-    orderBy: { name: "asc" },
-    take: 200,
-  });
+  const [recipes, pendingCount] = await Promise.all([
+    prisma.recipe.findMany({
+      where,
+      orderBy: { name: "asc" },
+      take: 200,
+    }),
+    prisma.recipe.count({ where: { status: "PENDING_REVIEW" } }),
+  ]);
 
   return (
     <div>
@@ -57,7 +60,16 @@ export default async function RecipesPage({
         </Link>
       </div>
 
-      <form method="GET" className="mt-6 flex gap-3">
+      {pendingCount > 0 && (
+        <Link
+          href="/admin/recipes?status=PENDING_REVIEW"
+          className="mt-6 inline-block rounded-full border-2 border-caramel-500 bg-caramel-200/50 px-4 py-2 text-sm font-semibold text-ink-900 hover:bg-caramel-200"
+        >
+          ⏳ Fila de curadoria ({pendingCount})
+        </Link>
+      )}
+
+      <form method="GET" className="mt-4 flex gap-3">
         <select
           name="status"
           defaultValue={status}

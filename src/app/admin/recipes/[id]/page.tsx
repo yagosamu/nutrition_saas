@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { MealType } from "@/lib/types";
 import { prisma } from "@/server/db";
+import { CurationBar } from "../curation-bar";
 import { RecipeForm } from "../recipe-form";
 
 export default async function EditRecipePage({
@@ -11,7 +12,10 @@ export default async function EditRecipePage({
   const { id } = await params;
   const recipe = await prisma.recipe.findUnique({
     where: { id },
-    include: { ingredients: { include: { ingredient: true } } },
+    include: {
+      ingredients: { include: { ingredient: true } },
+      patient: { select: { name: true } },
+    },
   });
   if (!recipe) notFound();
 
@@ -21,6 +25,20 @@ export default async function EditRecipePage({
         Editar receita
       </h1>
       <p className="mb-6 mt-1 text-sm text-ink-500">{recipe.name}</p>
+      {recipe.status === "PENDING_REVIEW" && (
+        <CurationBar
+          recipeId={recipe.id}
+          originLabel={recipe.origin === "AI_GENERATED" ? "Gerada pela IA" : "Receita externa"}
+          patientName={recipe.patient?.name ?? null}
+          createdAtLabel={new Intl.DateTimeFormat("pt-BR", {
+            timeZone: "America/Sao_Paulo",
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          }).format(recipe.createdAt)}
+        />
+      )}
       <RecipeForm
         id={recipe.id}
         initial={{
