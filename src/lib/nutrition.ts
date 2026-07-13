@@ -162,3 +162,15 @@ export function computeExternalVerdict(
     reason: `Mesmo na melhor porção, ${label} fica${over ? "m acima" : "m abaixo"} da meta desta refeição`,
   };
 }
+
+import type { AdherenceStats } from "./types";
+
+export function computeAdherence(
+  slotsPerDay: number,
+  windowDays: number,
+  loggedCount: number,
+): AdherenceStats {
+  const expected = slotsPerDay * windowDays;
+  const pct = expected <= 0 ? 0 : Math.min(100, Math.round((loggedCount / expected) * 100));
+  return { windowDays, expected, logged: Math.min(loggedCount, expected), pct };
+}

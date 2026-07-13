@@ -141,3 +141,15 @@ describe("computeExternalVerdict", () => {
     expect(v.reason).toContain("gordura");
   });
 });
+
+import { computeAdherence } from "./nutrition";
+
+describe("computeAdherence", () => {
+  it("calcula % de registros sobre o esperado", () => {
+    expect(computeAdherence(4, 7, 21)).toEqual({ windowDays: 7, expected: 28, logged: 21, pct: 75 });
+  });
+  it("clampa em 100 e trata esperado 0", () => {
+    expect(computeAdherence(4, 7, 40).pct).toBe(100);
+    expect(computeAdherence(0, 7, 0).pct).toBe(0);
+  });
+});
