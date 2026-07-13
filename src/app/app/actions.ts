@@ -9,7 +9,9 @@ import {
   registerPlanMealSchema,
   skipMealSchema,
 } from "@/lib/validation/meal-log";
+import { patientWeightSchema } from "@/lib/validation/assessment";
 import { requirePatient } from "@/server/auth/guards";
+import { upsertPatientWeight } from "@/server/services/assessments";
 import {
   productionMealLogDeps,
   productionExternalLookupDeps,
@@ -105,5 +107,15 @@ export async function registerExternalMealAction(payload: unknown): Promise<Acti
     parsed.data,
   );
   if (result.ok) revalidateApp();
+  return result;
+}
+
+export async function registerWeightAction(payload: unknown): Promise<ActionResult> {
+  const patient = await requirePatient();
+  if (!patient) return { ok: false, error: "Sem permissão" };
+  const parsed = patientWeightSchema.safeParse(payload);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Dados inválidos" };
+  const result = await upsertPatientWeight(patient.id, parsed.data.weightKg);
+  if (result.ok) revalidatePath("/app/progress");
   return result;
 }
