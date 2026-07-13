@@ -97,3 +97,23 @@ export type AiJobStatusView = {
   error: string | null;
   result: unknown;
 };
+
+export type AdherenceStats = {
+  windowDays: number;
+  expected: number; // slots do plano × dias
+  logged: number; // refeições com qualquer registro
+  pct: number; // 0..100, arredondado
+};
+
+export type WeightPoint = {
+  date: string; // YYYY-MM-DD
+  weightKg: number;
+  source: "TEAM" | "PATIENT";
+};
+
+export type TimelineEntry = {
+  date: string; // YYYY-MM-DD
+  kind: "TEAM_ASSESSMENT" | "PATIENT_WEIGHT";
+  weightKg: number | null;
+  summary: string; // ex: "Avaliação completa · 72,4 kg · 23% GC" | "Peso registrado"
+};
