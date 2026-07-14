@@ -1,6 +1,6 @@
 // Matemática nutricional pura e isomórfica (client + server).
 // ÚNICA fonte de cálculo de macros do sistema — nunca duplicar esta aritmética.
-import type { IngredientMacros, MacroTotals } from "./types";
+import type { AdherenceStats, IngredientMacros, MacroTotals } from "./types";
 
 export function round1(n: number): number {
   return Math.round(n * 10) / 10;
@@ -162,8 +162,6 @@ export function computeExternalVerdict(
     reason: `Mesmo na melhor porção, ${label} fica${over ? "m acima" : "m abaixo"} da meta desta refeição`,
   };
 }
-
-import type { AdherenceStats } from "./types";
 
 export function computeAdherence(
   slotsPerDay: number,
