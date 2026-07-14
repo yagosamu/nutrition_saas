@@ -470,12 +470,23 @@ Cada fase termina utilizável. Planos detalhados (com tarefas TDD passo a passo 
 
 *Nota de semântica (decisão na execução): tolerância de macros é teto (+10%) — estourar é proibido, ficar abaixo é permitido; kcal continua bidirecional (±5%), o que limita implicitamente quedas de macro.*
 
-### Fase 5 — Acompanhamento e Gestão
+### Fase 5 — Acompanhamento e Gestão *(concluída em 14/07/2026)*
 
-- [ ] Avaliações físicas (equipe) + peso e fotos de progresso (paciente).
-- [ ] Materiais de apoio (globais e por paciente).
-- [ ] Linha do tempo de evolução.
-- [ ] Dashboard analítico (aderência, evolução, uso/custo de IA, alertas de abandono).
+- [x] Avaliações físicas (equipe, com todas as medidas, criar/excluir) + peso do paciente (1/dia, upsert).
+- [ ] **Fotos de progresso — adiadas por decisão do usuário (13/07/2026)**: entram no add-on único de R2, junto com as fotos de refeição da Fase 3 e uploads de materiais.
+- [x] Materiais de apoio por link (globais e por paciente; visibilidade nunca vaza entre pacientes). Upload de PDF/imagem fica para o add-on R2.
+- [x] Linha do tempo de evolução (gráfico de peso em SVG próprio + histórico) — no app do paciente (`/app/progress`) e no admin (aba Evolução).
+- [x] Dashboard analítico (pacientes ativos, registros hoje, fila de curadoria, custo de IA no mês, alertas de 3+ dias sem registro, aderência 7d por paciente via `computeAdherence` puro + agregações no banco).
+
+### Status do MVP *(14/07/2026)*
+
+**O MVP está funcionalmente completo.** As 5 fases foram entregues; 76 testes e build verdes; fluxos verificados ponta a ponta (incl. camada de IA com API real da Anthropic).
+
+Pendências explícitas, por decisão de escopo:
+
+- **Add-on R2 (único, a priorizar quando quiser):** bucket Cloudflare R2 + URLs pré-assinadas → fotos de refeição (Fase 3), fotos de progresso (Fase 5) e upload de PDF/imagem em materiais (Fase 5).
+- **Backlog pós-MVP** (seção 4): gráfico de correlação métrica útil ao paciente e instant advice (novo tipo de `AiJob`), a elaborar em spec própria quando priorizados.
+- Semântica de tolerância de macros é teto (+10%) — se quiser voltar a ±10% bidirecional, é a troca de uma função em `src/lib/nutrition.ts` (nota da Fase 4).
 
 ---
 
