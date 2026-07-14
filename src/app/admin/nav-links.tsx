@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin/patients", label: "Pacientes", exact: false },
   { href: "/admin/recipes", label: "Receitas", exact: false },
   { href: "/admin/ingredients", label: "Ingredientes", exact: false },
+  { href: "/admin/materials", label: "Materiais", exact: false },
   { href: "/admin/ai-usage", label: "Consumo de IA", exact: false },
 ];
 

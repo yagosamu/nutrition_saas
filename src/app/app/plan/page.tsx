@@ -1,15 +1,20 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { todayInSaoPaulo } from "@/lib/dates";
 import { Icon } from "@/components/icons";
 import { requirePatient } from "@/server/auth/guards";
 import { getPatientDay } from "@/server/services/patient-day";
+import { getPatientMaterials } from "@/server/services/materials";
 import { logoutAction } from "../../(auth)/actions";
 
 export default async function MyPlanPage() {
   const patient = await requirePatient();
   if (!patient) redirect("/login");
 
-  const day = await getPatientDay(patient.id, todayInSaoPaulo());
+  const [day, materials] = await Promise.all([
+    getPatientDay(patient.id, todayInSaoPaulo()),
+    getPatientMaterials(patient.id),
+  ]);
 
   return (
     <div>
@@ -101,6 +106,24 @@ export default async function MyPlanPage() {
             ))}
           </div>
         </>
+      )}
+
+      {materials.length > 0 && (
+        <Link
+          href="/app/materials"
+          className="mt-6 flex items-center gap-3 rounded-2xl bg-charcoal-900 px-4 py-4 text-cream-100 transition hover:bg-charcoal-900/90"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-caramel-500 text-charcoal-900">
+            <Icon name="folder" size={16} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-semibold">Materiais da sua nutri</span>
+            <span className="block text-xs text-caramel-200">
+              {materials.length} {materials.length === 1 ? "material" : "materiais"} para você
+            </span>
+          </span>
+          <Icon name="arrowLeft" size={16} className="shrink-0 rotate-180 text-caramel-200" />
+        </Link>
       )}
 
       <form action={logoutAction} className="mt-8 text-center">
