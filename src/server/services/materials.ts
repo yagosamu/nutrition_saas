@@ -37,6 +37,6 @@ export function getPatientMaterials(patientId: string) {
   return prisma.material.findMany({
     where: { OR: [{ isGlobal: true }, { assignments: { some: { patientId } } }] },
     orderBy: { createdAt: "desc" },
-    select: { id: true, title: true, type: true, url: true, createdAt: true },
+    select: { id: true, title: true, type: true, url: true, isGlobal: true, createdAt: true },
   });
 }

@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/server/db";
 import { PatientEditForm } from "../patient-edit-form";
-
-const FUTURE_TABS = ["Avaliações", "Diário", "Materiais", "Evolução"];
+import { PatientTabs } from "./patient-tabs";
 
 export default async function PatientDetailPage({
   params,
@@ -37,26 +35,7 @@ export default async function PatientDetailPage({
         )}
       </div>
 
-      <div className="mt-6 flex gap-1 border-b border-line-200">
-        <span className="border-b-2 border-brand-500 px-4 py-2 text-sm font-semibold text-brand-600">
-          Dados
-        </span>
-        <Link
-          href={`/admin/patients/${patient.id}/plan`}
-          className="px-4 py-2 text-sm text-ink-500 hover:text-brand-600"
-        >
-          Plano alimentar
-        </Link>
-        {FUTURE_TABS.map((tab) => (
-          <span
-            key={tab}
-            title="Chega na Fase 5"
-            className="cursor-not-allowed px-4 py-2 text-sm text-ink-300"
-          >
-            {tab}
-          </span>
-        ))}
-      </div>
+      <PatientTabs patientId={patient.id} active="" />
 
       <div className="mt-6">
         <PatientEditForm
