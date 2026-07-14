@@ -14,7 +14,7 @@ const ITEMS: {
   { href: "/app", label: "Hoje", icon: "home", exact: true },
   { href: "/app/diary", label: "Diário", icon: "book", exact: false },
   { href: "/app/plan", label: "Meu plano", icon: "list", exact: false },
-  { href: "#", label: "Progresso", icon: "chart", exact: false, disabled: true },
+  { href: "/app/progress", label: "Progresso", icon: "chart", exact: false },
 ];
 
 export function BottomNav() {
